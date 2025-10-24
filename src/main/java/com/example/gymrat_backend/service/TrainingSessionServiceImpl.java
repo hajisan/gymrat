@@ -1,4 +1,4 @@
 package com.example.gymrat_backend.service;
 
-public class TrainingSessionServiceImpl {
+public class TrainingSessionServiceImpl implements TrainingSessionService {
 }
