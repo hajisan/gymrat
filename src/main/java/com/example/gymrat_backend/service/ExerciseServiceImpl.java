@@ -1,7 +1,7 @@
 package com.example.gymrat_backend.service;
 
 import com.example.gymrat_backend.model.Exercise;
-import com.example.gymrat_backend.model.ExerciseSet;
+import com.example.gymrat_backend.model.PerformedSet;
 import com.example.gymrat_backend.repository.ExerciseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

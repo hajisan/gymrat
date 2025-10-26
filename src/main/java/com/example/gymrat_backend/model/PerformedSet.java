@@ -1,14 +1,21 @@
 package com.example.gymrat_backend.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Check;
 
 import java.math.BigDecimal;
 
 // Det antal set som bliver tilføjet til en Session Exercise - kaldet SessionSet da "Set" er et keyword i MySQL
 
 @Entity
-@Table(name = "performed_set")
-
+@Table(name = "performed_set", uniqueConstraints = @UniqueConstraint(
+            name = "uq_performed_set_exercise_setnumber",
+            columnNames = {"performed_exercise_id", "set_number"}),
+        indexes = {
+            @Index(name = "idx_performed_set__exercise", columnList = "performed_exercise_id")
+        }
+)
+@Check(constraints = "(reps IS NOT NULL) OR (duration_seconds IS NOT NULL)")
 public class PerformedSet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,7 +29,7 @@ public class PerformedSet {
     @Column(name = "set_number", nullable = false)
     private Integer setNumber;
 
-    @Column(name = "weight", nullable = false, precision = 10, scale = 2)
+    @Column(name = "weight", precision = 10, scale = 2)
     private BigDecimal weight;
 
     @Column
@@ -37,8 +44,10 @@ public class PerformedSet {
     // Many-to-one relation
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "performed_exercise_id", nullable = false,
-                foreignKey = @ForeignKey(name = "fk_set_se"))
+    @JoinColumn(
+            name = "performed_exercise_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_performed_set_performed_exercise"))
     private PerformedExercise performedExercise;
 
     // Konstruktør - uden args og med
@@ -63,7 +72,8 @@ public class PerformedSet {
     @PreUpdate
     private void validateRepsOrDuration() {
         if (this.reps == null && this.durationSeconds == null) {
-            throw new IllegalStateException("ExerciseSet must have at least one of 'reps' or 'durationSeconds' set.");
+            throw new IllegalStateException(
+                    "ExerciseSet must have at least one of 'reps' or 'durationSeconds' set.");
         }
     }
 
