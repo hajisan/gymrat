@@ -1,4 +1,4 @@
 package com.example.gymrat_backend.service;
 
-public interface SessionExerciseService {
+public interface PerformedExerciseService {
 }

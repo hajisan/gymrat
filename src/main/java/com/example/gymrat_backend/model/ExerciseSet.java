@@ -2,6 +2,8 @@ package com.example.gymrat_backend.model;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
+
 // Det antal set som bliver tilføjet til en Session Exercise - kaldet SessionSet da "Set" er et keyword i MySQL
 
 @Entity
@@ -10,7 +12,8 @@ import jakarta.persistence.*;
 public class ExerciseSet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long sessionSetId;
+    @Column(name = "exercise_set_id")
+    private Long exerciseSetId;
 
     @Enumerated(EnumType.STRING) // gemmes som VARCHAR ('LEFT' / 'RIGHT' / 'BOTH')
     @Column(name = "side_of_body", length = 5, nullable = false)
@@ -19,30 +22,30 @@ public class ExerciseSet {
     @Column(name = "set_number", nullable = false)
     private Integer setNumber;
 
-    @Column(nullable = false)
-    private double weight;
+    @Column(name = "weight", nullable = false, precision = 10, scale = 2)
+    private BigDecimal weight;
 
     @Column
     private Integer reps; // reps bruges til øvelser med gentagelser
 
-    @Column
+    @Column(name = "duration_seconds")
     private Integer durationSeconds; // duractionSeconds bruges til øvelser målt i tid
 
-    @Column
+    @Column(name = "note")
     private String note;
 
     // Many-to-one relation
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "session_exercise_id", nullable = false,
+    @JoinColumn(name = "performed_exercise_id", nullable = false,
                 foreignKey = @ForeignKey(name = "fk_set_se"))
-    private SessionExercise sessionExercise;
+    private PerformedExercise performedExercise;
 
     // Konstruktør - uden args og med
 
     public ExerciseSet() {}
 
-    public ExerciseSet(SideOfBody sideOfBody, Integer setNumber, double weight, Integer reps, Integer durationSeconds, String note) {
+    public ExerciseSet(SideOfBody sideOfBody, Integer setNumber, BigDecimal weight, Integer reps, Integer durationSeconds, String note) {
         this.sideOfBody = sideOfBody;
         this.setNumber = setNumber;
         this.weight = weight;
@@ -66,11 +69,11 @@ public class ExerciseSet {
 
     // Getter og Setter
 
-    public Long getSessionSetId() {
-        return sessionSetId;
+    public Long getExerciseSetId() {
+        return exerciseSetId;
     }
-    public void setSessionSetId(Long sessionSetId) {
-        this.sessionSetId = sessionSetId;
+    public void setExerciseSetId(Long exerciseSetId) {
+        this.exerciseSetId = exerciseSetId;
     }
 
     public SideOfBody getSideOfBody() {
@@ -87,10 +90,10 @@ public class ExerciseSet {
         this.setNumber = setNumber;
     }
 
-    public double getWeight() {
+    public BigDecimal getWeight() {
         return weight;
     }
-    public void setWeight(double weight) {
+    public void setWeight(BigDecimal weight) {
         this.weight = weight;
     }
 
@@ -115,10 +118,10 @@ public class ExerciseSet {
         this.note = note;
     }
 
-    public SessionExercise getSessionExercise() {
-        return sessionExercise;
+    public PerformedExercise getPerformedExercise() {
+        return performedExercise;
     }
-    public void setSessionExercise(SessionExercise sessionerExercise) {
-        this.sessionExercise = sessionerExercise;
+    public void setPerformedExercise(PerformedExercise performedExercise) {
+        this.performedExercise = performedExercise;
     }
 }

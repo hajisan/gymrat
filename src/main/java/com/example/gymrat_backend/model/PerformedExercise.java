@@ -5,10 +5,10 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-// Den exercise som bliver brugt i en session
+// Den øvelser der er udført
 
 @Entity
-@Table(name = "session_exercise", uniqueConstraints = @UniqueConstraint(
+@Table(name = "performed_exercise", uniqueConstraints = @UniqueConstraint(
             name = "uq_session_order",
             columnNames = {"training_session_id", "order_number"}),
         indexes = {
@@ -17,9 +17,10 @@ import java.util.List;
         }
 )
 
-public class SessionExercise {
+public class PerformedExercise {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long sessionExerciseId;
+    @Column(name = "performed_exercise_id")
+    private Long performedExerciseId;
 
     @Column(name = "order_number", nullable = false)
     private Integer orderNumber;
@@ -38,15 +39,15 @@ public class SessionExercise {
 
     // One-to-Many relation til ExerciseSet
 
-    @OneToMany(mappedBy = "sessionExercise", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "performedExercise", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("setNumber asc, sideOfBody asc")
     private List<ExerciseSet> sets = new ArrayList<>();
 
     // Konstruktør - uden args og med
 
-    public SessionExercise() {}
+    public PerformedExercise() {}
 
-    public SessionExercise( Integer orderNumber, TrainingSession session, Exercise exercise) {
+    public PerformedExercise(Integer orderNumber, TrainingSession session, Exercise exercise) {
         this.orderNumber = orderNumber;
         this.session = session;
         this.exercise = exercise;
@@ -59,22 +60,22 @@ public class SessionExercise {
     public void addSet(ExerciseSet set) {
         if (set == null) return;
         sets.add(set);
-        set.setSessionExercise(this);
+        set.setPerformedExercise(this);
     }
 
     public void removeSet(ExerciseSet set) {
         if (set == null) return;
         sets.remove(set);
-        set.setSessionExercise(null);
+        set.setPerformedExercise(null);
     }
 
     // Getter og Setter
 
-    public Long getSessionExerciseId() {
-        return sessionExerciseId;
+    public Long getPerformedExerciseId() {
+        return performedExerciseId;
     }
-    public void setSessionExerciseId(Long sessionExerciseId) {
-        this.sessionExerciseId = sessionExerciseId;
+    public void setPerformedExercise(Long performedExerciseId) {
+        this.performedExerciseId = performedExerciseId;
     }
 
     public Integer getOrderNumber() {
