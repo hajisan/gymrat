@@ -28,7 +28,7 @@ public class TrainingSession {
         cascade = CascadeType.ALL,
         orphanRemoval = true)
     @OrderBy("orderNumber asc")
-    private List<SessionExercise> exercises = new ArrayList<>();
+    private List<PerformedExercise> exercises = new ArrayList<>();
 
     // Konstruktør - uden args og med
 
@@ -54,13 +54,13 @@ public class TrainingSession {
         Når et SessionExercise-objekt tilføjes eller fjernes, opdateres begge sider af relationen,
         så Hibernate altid har et konsistent billede af dataene. */
 
-    public void addExercise(SessionExercise exercise) {
+    public void addExercise(PerformedExercise exercise) {
         if (exercise == null) return;
         exercises.add(exercise);
         exercise.setSession(this);
     }
 
-    public void removeExercise(SessionExercise exercise) {
+    public void removeExercise(PerformedExercise exercise) {
         if (exercise == null) return;
         exercises.remove(exercise);
         exercise.setSession(null);
@@ -89,10 +89,10 @@ public class TrainingSession {
         this.note = note;
     }
 
-    public List<SessionExercise> getExercises() {
+    public List<PerformedExercise> getExercises() {
         return exercises;
     }
-    public void setExercises(List<SessionExercise> exercises) {
+    public void setExercises(List<PerformedExercise> exercises) {
         this.exercises = exercises;
     }
 
