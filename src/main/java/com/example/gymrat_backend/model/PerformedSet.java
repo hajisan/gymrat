@@ -7,13 +7,13 @@ import java.math.BigDecimal;
 // Det antal set som bliver tilføjet til en Session Exercise - kaldet SessionSet da "Set" er et keyword i MySQL
 
 @Entity
-@Table(name = "exercise_set")
+@Table(name = "performed_set")
 
-public class ExerciseSet {
+public class PerformedSet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "exercise_set_id")
-    private Long exerciseSetId;
+    @Column(name = "performed_set_id")
+    private Long performedSetId;
 
     @Enumerated(EnumType.STRING) // gemmes som VARCHAR ('LEFT' / 'RIGHT' / 'BOTH')
     @Column(name = "side_of_body", length = 5, nullable = false)
@@ -43,9 +43,9 @@ public class ExerciseSet {
 
     // Konstruktør - uden args og med
 
-    public ExerciseSet() {}
+    public PerformedSet() {}
 
-    public ExerciseSet(SideOfBody sideOfBody, Integer setNumber, BigDecimal weight, Integer reps, Integer durationSeconds, String note) {
+    public PerformedSet(SideOfBody sideOfBody, Integer setNumber, BigDecimal weight, Integer reps, Integer durationSeconds, String note) {
         this.sideOfBody = sideOfBody;
         this.setNumber = setNumber;
         this.weight = weight;
@@ -69,11 +69,11 @@ public class ExerciseSet {
 
     // Getter og Setter
 
-    public Long getExerciseSetId() {
-        return exerciseSetId;
+    public Long getPerformedSetId() {
+        return performedSetId;
     }
-    public void setExerciseSetId(Long exerciseSetId) {
-        this.exerciseSetId = exerciseSetId;
+    public void setPerformedSetId(Long performedSetId) {
+        this.performedSetId = performedSetId;
     }
 
     public SideOfBody getSideOfBody() {
