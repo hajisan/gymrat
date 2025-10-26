@@ -3,6 +3,8 @@
 --  Seed data matching JPA entities
 -- =========================================
 
+USE gymrat_db;
+
 -- -----------------------------------------
 -- Table: exercise
 -- -----------------------------------------
@@ -49,7 +51,7 @@ INSERT IGNORE INTO performed_exercise (
 --  Kolonnenavnene følger Spring/Hibernate snake_case:
 --   durationSeconds-feltet i entity -> duration_seconds i DB
 -- -----------------------------------------
-INSERT IGNORE INTO exercise_set (
+INSERT IGNORE INTO performed_set (
     performed_exercise_id,
     side_of_body,
     set_number,

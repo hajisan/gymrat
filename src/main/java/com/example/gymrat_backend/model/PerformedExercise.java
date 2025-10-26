@@ -1,11 +1,12 @@
 package com.example.gymrat_backend.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Check;
 
 import java.util.ArrayList;
 import java.util.List;
 
-// Den øvelser der er udført
+// Den øvelser der er blevet udført
 
 @Entity
 @Table(name = "performed_exercise", uniqueConstraints = @UniqueConstraint(
@@ -16,7 +17,7 @@ import java.util.List;
             @Index(name = "idx_se_exercise", columnList = "exercise_id")
         }
 )
-
+@Check(constraints = "order_number > 0")
 public class PerformedExercise {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "performed_exercise_id")
@@ -29,19 +30,19 @@ public class PerformedExercise {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "training_session_id", nullable = false,
-                foreignKey = @ForeignKey(name = "fk_se_session"))
+                foreignKey = @ForeignKey(name = "fk_performed_exercise_session"))
     private TrainingSession session;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "exercise_id", nullable = false,
-                foreignKey = @ForeignKey(name = "fk_se_exercise"))
+                foreignKey = @ForeignKey(name = "fk_performed_exercise_exercise"))
     private Exercise exercise;
 
     // One-to-Many relation til ExerciseSet
 
     @OneToMany(mappedBy = "performedExercise", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("setNumber asc, sideOfBody asc")
-    private List<ExerciseSet> sets = new ArrayList<>();
+    private List<PerformedSet> sets = new ArrayList<>();
 
     // Konstruktør - uden args og med
 
@@ -57,13 +58,13 @@ public class PerformedExercise {
         Når et ExerciseSet tilføjes eller fjernes, opdateres begge sider af relationen,
         så Hibernate altid har et konsistent billede af dataene. */
 
-    public void addSet(ExerciseSet set) {
+    public void addSet(PerformedSet set) {
         if (set == null) return;
         sets.add(set);
         set.setPerformedExercise(this);
     }
 
-    public void removeSet(ExerciseSet set) {
+    public void removeSet(PerformedSet set) {
         if (set == null) return;
         sets.remove(set);
         set.setPerformedExercise(null);
@@ -74,7 +75,7 @@ public class PerformedExercise {
     public Long getPerformedExerciseId() {
         return performedExerciseId;
     }
-    public void setPerformedExercise(Long performedExerciseId) {
+    public void setPerformedExerciseId(Long performedExerciseId) {
         this.performedExerciseId = performedExerciseId;
     }
 
@@ -99,11 +100,10 @@ public class PerformedExercise {
         this.exercise = exercise;
     }
 
-    public List<ExerciseSet> getSets() {
+    public List<PerformedSet> getSets() {
         return sets;
     }
-    public void setSets(List<ExerciseSet> sets) {
+    public void setSets(List<PerformedSet> sets) {
         this.sets = sets;
     }
-
 }

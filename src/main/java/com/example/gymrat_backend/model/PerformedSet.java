@@ -1,19 +1,26 @@
 package com.example.gymrat_backend.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Check;
 
 import java.math.BigDecimal;
 
 // Det antal set som bliver tilføjet til en Session Exercise - kaldet SessionSet da "Set" er et keyword i MySQL
 
 @Entity
-@Table(name = "exercise_set")
-
-public class ExerciseSet {
+@Table(name = "performed_set", uniqueConstraints = @UniqueConstraint(
+            name = "uq_performed_set_exercise_setnumber",
+            columnNames = {"performed_exercise_id", "set_number"}),
+        indexes = {
+            @Index(name = "idx_performed_set__exercise", columnList = "performed_exercise_id")
+        }
+)
+@Check(constraints = "(reps IS NOT NULL) OR (duration_seconds IS NOT NULL)")
+public class PerformedSet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "exercise_set_id")
-    private Long exerciseSetId;
+    @Column(name = "performed_set_id")
+    private Long performedSetId;
 
     @Enumerated(EnumType.STRING) // gemmes som VARCHAR ('LEFT' / 'RIGHT' / 'BOTH')
     @Column(name = "side_of_body", length = 5, nullable = false)
@@ -22,7 +29,7 @@ public class ExerciseSet {
     @Column(name = "set_number", nullable = false)
     private Integer setNumber;
 
-    @Column(name = "weight", nullable = false, precision = 10, scale = 2)
+    @Column(name = "weight", precision = 10, scale = 2)
     private BigDecimal weight;
 
     @Column
@@ -37,15 +44,17 @@ public class ExerciseSet {
     // Many-to-one relation
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "performed_exercise_id", nullable = false,
-                foreignKey = @ForeignKey(name = "fk_set_se"))
+    @JoinColumn(
+            name = "performed_exercise_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_performed_set_performed_exercise"))
     private PerformedExercise performedExercise;
 
     // Konstruktør - uden args og med
 
-    public ExerciseSet() {}
+    public PerformedSet() {}
 
-    public ExerciseSet(SideOfBody sideOfBody, Integer setNumber, BigDecimal weight, Integer reps, Integer durationSeconds, String note) {
+    public PerformedSet(SideOfBody sideOfBody, Integer setNumber, BigDecimal weight, Integer reps, Integer durationSeconds, String note) {
         this.sideOfBody = sideOfBody;
         this.setNumber = setNumber;
         this.weight = weight;
@@ -63,17 +72,18 @@ public class ExerciseSet {
     @PreUpdate
     private void validateRepsOrDuration() {
         if (this.reps == null && this.durationSeconds == null) {
-            throw new IllegalStateException("ExerciseSet must have at least one of 'reps' or 'durationSeconds' set.");
+            throw new IllegalStateException(
+                    "ExerciseSet must have at least one of 'reps' or 'durationSeconds' set.");
         }
     }
 
     // Getter og Setter
 
-    public Long getExerciseSetId() {
-        return exerciseSetId;
+    public Long getPerformedSetId() {
+        return performedSetId;
     }
-    public void setExerciseSetId(Long exerciseSetId) {
-        this.exerciseSetId = exerciseSetId;
+    public void setPerformedSetId(Long performedSetId) {
+        this.performedSetId = performedSetId;
     }
 
     public SideOfBody getSideOfBody() {

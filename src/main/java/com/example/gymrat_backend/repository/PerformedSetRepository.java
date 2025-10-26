@@ -1,9 +1,9 @@
 package com.example.gymrat_backend.repository;
 
-import com.example.gymrat_backend.model.ExerciseSet;
+import com.example.gymrat_backend.model.PerformedSet;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ExerciseSetRepository extends JpaRepository<ExerciseSet, Long> {
+public interface PerformedSetRepository extends JpaRepository<PerformedSet, Long> {
 
     // CRUD er indbygget i JPA
 
