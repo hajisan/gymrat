@@ -1,6 +1,7 @@
 package com.example.gymrat_backend.dto.request;
 
 import com.example.gymrat_backend.model.SideOfBody;
+import com.example.gymrat_backend.validation.RepsOrDuration;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
