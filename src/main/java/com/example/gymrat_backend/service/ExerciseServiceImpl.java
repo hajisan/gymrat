@@ -1,8 +1,8 @@
 package com.example.gymrat_backend.service;
 
 import com.example.gymrat_backend.model.Exercise;
-import com.example.gymrat_backend.model.PerformedSet;
 import com.example.gymrat_backend.repository.ExerciseRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class ExerciseServiceImpl implements ExerciseService {
 
     private final ExerciseRepository exerciseRepository;

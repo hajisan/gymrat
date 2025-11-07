@@ -51,7 +51,7 @@ public class TrainingSessionMapper {
         if (request == null) return null;
 
         TrainingSession session = new TrainingSession();
-        session.setCreatedAt(request.getCreatedAt()); // Kan være null - håndteres af @PrePersists
+        session.setCreatedAt(request.getCreatedAt()); // Kan være null - håndteres af @PrePersist
         session.setNote(request.getNote());
         // Setter ikke ID - genereres af database
 
@@ -60,12 +60,13 @@ public class TrainingSessionMapper {
 
     // 4. UpdateTrainingSessionRequest -> opdater eksisterende TrainingSession (til UPDATE)
     public static void updateEntity(TrainingSession session, UpdateTrainingSessionRequest request) {
+        if (session == null || request == null) return;
+
         if (request.getCreatedAt() != null) {
-            session.setCreatedAt(request.getCreatedAt());
+            session.setCreatedAt(request.getCreatedAt()); // Kun opdater hvis createdAt bliver sat
         }
         if (request.getNote() != null) {
-            session.setNote(request.getNote());
+            session.setNote(request.getNote()); // Kun opdater hvis note blive sat
         }
     }
-
 }
