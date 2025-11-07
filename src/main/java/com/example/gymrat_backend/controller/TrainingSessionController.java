@@ -1,4 +1,4 @@
 package com.example.gymrat_backend.controller;
 
-public class TrainingSession {
+public class TrainingSessionController {
 }
