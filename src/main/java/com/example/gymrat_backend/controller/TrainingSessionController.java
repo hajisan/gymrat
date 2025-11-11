@@ -16,6 +16,8 @@ import java.util.List;
 @RequestMapping("/training-session")
 public class TrainingSessionController {
 
+    // TODO: Ændre injection til at bruge TrainingSessionService frem for implementationsklassen.
+
     private final TrainingSessionServiceImpl service;
 
     public TrainingSessionController(TrainingSessionServiceImpl service) {
