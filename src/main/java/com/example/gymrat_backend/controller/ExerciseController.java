@@ -1,15 +1,16 @@
 package com.example.gymrat_backend.controller;
 
-import com.example.gymrat_backend.model.Exercise;
+import com.example.gymrat_backend.dto.ExerciseDTO;
 import com.example.gymrat_backend.service.ExerciseService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/exercise")
+@RequestMapping("/api/exercises")
 public class ExerciseController {
 
     private final ExerciseService exerciseService;
@@ -18,37 +19,50 @@ public class ExerciseController {
         this.exerciseService = exerciseService;
     }
 
-    // Get mapping for at hente alle øvelser
-    @GetMapping("/list")
-    public List<Exercise> getAllExercises() {
-        return exerciseService.getAllExercises();
+    /**
+     * GET /api/exercises - Hent alle øvelser
+     */
+    @GetMapping
+    public ResponseEntity<List<ExerciseDTO>> getAllExercises() {
+        List<ExerciseDTO> exercises = exerciseService.getAllExercises();
+        return ResponseEntity.ok(exercises);
     }
 
-    // Get mapping for at hente en specifik øvelse ud fra ID
+    /**
+     * GET /api/exercises/{id} - Hent en specifik øvelse
+     */
     @GetMapping("/{id}")
-    public Optional<Exercise> getExercise(@PathVariable Long id) {
-        return exerciseService.getExerciseById(id);
+    public ResponseEntity<ExerciseDTO> getExerciseById(@PathVariable Long id) {
+        ExerciseDTO exercise = exerciseService.getExerciseById(id);
+        return ResponseEntity.ok(exercise);
     }
 
-    // Post mapping til at oprette en øvelse
-    @PostMapping("/create")
-    public ResponseEntity<Exercise> createExercise(@RequestBody Exercise exercise) {
-        Exercise newExercise = exerciseService.createExercise(exercise);
-        return ResponseEntity.ok(newExercise);
+    /**
+     * POST /api/exercises - Opret en ny øvelse
+     */
+    @PostMapping
+    public ResponseEntity<ExerciseDTO> createExercise(@Valid @RequestBody ExerciseDTO exerciseDTO) {
+        ExerciseDTO newExercise = exerciseService.createExercise(exerciseDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newExercise);
     }
 
-    // Patch mapping til at opdatere en specifik øvelse ud fra ID
-    @PatchMapping("/{id}")
-    public ResponseEntity<Exercise> updateExercise(@PathVariable("id") Long id, @RequestBody Exercise patch) {
-        Exercise updatedExercise = exerciseService.updateExercise(id, patch);
+    /**
+     * PUT /api/exercises/{id} - Opdater en eksisterende øvelse
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<ExerciseDTO> updateExercise(
+            @PathVariable Long id,
+            @Valid @RequestBody ExerciseDTO exerciseDTO) {
+        ExerciseDTO updatedExercise = exerciseService.updateExercise(id, exerciseDTO);
         return ResponseEntity.ok(updatedExercise);
     }
 
-    // Delet mapping til at slette en øvelse på ID
+    /**
+     * DELETE /api/exercises/{id} - Slet en øvelse
+     */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteExercise(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> deleteExercise(@PathVariable Long id) {
         exerciseService.deleteExercise(id);
         return ResponseEntity.noContent().build();
     }
-
 }
