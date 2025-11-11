@@ -1,18 +1,18 @@
 package com.example.gymrat_backend.service;
 
-import com.example.gymrat_backend.model.Exercise;
+import com.example.gymrat_backend.dto.ExerciseDTO;
+
 import java.util.List;
-import java.util.Optional;
 
 public interface ExerciseService {
 
-    List<Exercise> getAllExercises();
+    List<ExerciseDTO> getAllExercises();
 
-    Optional<Exercise> getExerciseById(Long id);
+    ExerciseDTO getExerciseById(Long id);
 
-    Exercise createExercise(Exercise exercise);
+    ExerciseDTO createExercise(ExerciseDTO exerciseDTO);
 
-    Exercise updateExercise(Long id, Exercise exercise);
+    ExerciseDTO updateExercise(Long id, ExerciseDTO exerciseDTO);
 
     void deleteExercise(Long id);
 

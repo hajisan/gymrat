@@ -1,72 +1,87 @@
 package com.example.gymrat_backend.mapper;
 
-import com.example.gymrat_backend.dto.request.CreateTrainingSessionRequest;
-import com.example.gymrat_backend.dto.request.UpdateTrainingSessionRequest;
-import com.example.gymrat_backend.dto.response.PerformedExerciseResponse;
-import com.example.gymrat_backend.dto.response.TrainingSessionDetailResponse;
-import com.example.gymrat_backend.dto.response.TrainingSessionSummaryResponse;
+import com.example.gymrat_backend.dto.TrainingSessionDTO;
 import com.example.gymrat_backend.model.TrainingSession;
+import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.stream.Collectors;
 
+@Component
 public class TrainingSessionMapper {
-
-    private TrainingSessionMapper() {
-        throw new UnsupportedOperationException("Utility class");
+    
+    private final PerformedExerciseMapper performedExerciseMapper;
+    
+    public TrainingSessionMapper(PerformedExerciseMapper performedExerciseMapper) {
+        this.performedExerciseMapper = performedExerciseMapper;
     }
-
-    // 1. TrainingSession -> TrainingSessionSummaryResponse (til liste visning)
-    public static TrainingSessionSummaryResponse toSummaryResponse(TrainingSession session) {
-        if (session == null) return null;
-
-        TrainingSessionSummaryResponse response = new TrainingSessionSummaryResponse();
-        response.setTrainingSessionId(session.getTrainingSessionId());
-        response.setCreatedAt(session.getCreatedAt());
-        response.setNote(session.getNote());
-        response.setExerciseCount(session.getExercises().size()); // Antallet af exercises
-
-        return response;
-    }
-
-    // 2. TrainingSession -> TrainingSessionDetailResponse (til detaljeret visning)
-    public static TrainingSessionDetailResponse toDetailResponse(TrainingSession session) {
-        if (session == null) return null;
-
-        TrainingSessionDetailResponse response = new TrainingSessionDetailResponse();
-        response.setTrainingSessionId(session.getTrainingSessionId());
-        response.setCreatedAt(session.getCreatedAt());
-        response.setNote(session.getNote());
-
-        // Map nested performed exercise entity til DTO
-        List<PerformedExerciseResponse> exerciseResponses = session.getExercises().stream()
-                .map(PerformedExerciseMapper::toResponse)
-                .toList();
-        response.setExercises(exerciseResponses);
-
-        return response;
-    }
-
-    // 3. CreateTrainingSessionRequest -> TrainingSession (til CREATE)
-    public static TrainingSession toEntity(CreateTrainingSessionRequest request) {
-        if (request == null) return null;
-
-        TrainingSession session = new TrainingSession();
-        session.setCreatedAt(request.getCreatedAt()); // Kan være null - håndteres af @PrePersist
-        session.setNote(request.getNote());
-        // Setter ikke ID - genereres af database
-
-        return  session;
-    }
-
-    // 4. UpdateTrainingSessionRequest -> opdater eksisterende TrainingSession (til UPDATE)
-    public static void updateEntity(TrainingSession session, UpdateTrainingSessionRequest request) {
-        if (session == null || request == null) return;
-
-        if (request.getCreatedAt() != null) {
-            session.setCreatedAt(request.getCreatedAt()); // Kun opdater hvis createdAt bliver sat
+    
+    /**
+     * Konverterer TrainingSession entity til TrainingSessionDTO
+     */
+    public TrainingSessionDTO toDTO(TrainingSession session) {
+        if (session == null) {
+            return null;
         }
-        if (request.getNote() != null) {
-            session.setNote(request.getNote()); // Kun opdater hvis note blive sat
+        
+        TrainingSessionDTO dto = new TrainingSessionDTO();
+        dto.setTrainingSessionId(session.getTrainingSessionId());
+        dto.setCreatedAt(session.getCreatedAt());
+        dto.setNote(session.getNote());
+        
+        if (session.getExercises() != null && !session.getExercises().isEmpty()) {
+            dto.setExercises(session.getExercises().stream()
+                    .map(performedExerciseMapper::toDTO)
+                    .collect(Collectors.toList()));
+        }
+        
+        return dto;
+    }
+    
+    /**
+     * Konverterer TrainingSession entity til DTO uden at inkludere exercises (for lister)
+     */
+    public TrainingSessionDTO toDTOWithoutExercises(TrainingSession session) {
+        if (session == null) {
+            return null;
+        }
+        
+        TrainingSessionDTO dto = new TrainingSessionDTO();
+        dto.setTrainingSessionId(session.getTrainingSessionId());
+        dto.setCreatedAt(session.getCreatedAt());
+        dto.setNote(session.getNote());
+        
+        return dto;
+    }
+    
+    /**
+     * Konverterer TrainingSessionDTO til TrainingSession entity (uden relations)
+     */
+    public TrainingSession toEntity(TrainingSessionDTO dto) {
+        if (dto == null) {
+            return null;
+        }
+        
+        TrainingSession session = new TrainingSession();
+        session.setTrainingSessionId(dto.getTrainingSessionId());
+        session.setCreatedAt(dto.getCreatedAt());
+        session.setNote(dto.getNote());
+        
+        return session;
+    }
+    
+    /**
+     * Opdaterer en eksisterende TrainingSession entity fra en DTO
+     */
+    public void updateEntityFromDTO(TrainingSessionDTO dto, TrainingSession session) {
+        if (dto == null || session == null) {
+            return;
+        }
+        
+        if (dto.getCreatedAt() != null) {
+            session.setCreatedAt(dto.getCreatedAt());
+        }
+        if (dto.getNote() != null) {
+            session.setNote(dto.getNote());
         }
     }
 }

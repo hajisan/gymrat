@@ -1,67 +1,77 @@
 package com.example.gymrat_backend.service;
 
-import com.example.gymrat_backend.dto.request.CreateTrainingSessionRequest;
-import com.example.gymrat_backend.dto.request.UpdateTrainingSessionRequest;
-import com.example.gymrat_backend.dto.response.TrainingSessionDetailResponse;
-import com.example.gymrat_backend.dto.response.TrainingSessionSummaryResponse;
+import com.example.gymrat_backend.dto.TrainingSessionDTO;
+import com.example.gymrat_backend.exception.ResourceNotFoundException;
 import com.example.gymrat_backend.mapper.TrainingSessionMapper;
 import com.example.gymrat_backend.model.TrainingSession;
 import com.example.gymrat_backend.repository.TrainingSessionRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class TrainingSessionServiceImpl implements TrainingSessionService {
-
-    private final TrainingSessionRepository repository;
-
-    public TrainingSessionServiceImpl(TrainingSessionRepository repository) {
-        this.repository = repository;
+    
+    private final TrainingSessionRepository trainingSessionRepository;
+    private final TrainingSessionMapper trainingSessionMapper;
+    
+    public TrainingSessionServiceImpl(TrainingSessionRepository trainingSessionRepository,
+                                     TrainingSessionMapper trainingSessionMapper) {
+        this.trainingSessionRepository = trainingSessionRepository;
+        this.trainingSessionMapper = trainingSessionMapper;
     }
-
+    
     @Override
-    public List<TrainingSessionSummaryResponse> getAllSessions() {
-        List<TrainingSession> sessions = repository.findAll();
-
+    @Transactional(readOnly = true)
+    public List<TrainingSessionDTO> getAllTrainingSessions() {
+        return trainingSessionRepository.findAll().stream()
+                .map(trainingSessionMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public TrainingSessionDTO getTrainingSessionById(Long id) {
+        TrainingSession session = trainingSessionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Træningssession", "id", id));
+        return trainingSessionMapper.toDTO(session);
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<TrainingSessionDTO> getTrainingSessionsByDateRange(LocalDate startDate, LocalDate endDate) {
+        List<TrainingSession> sessions = trainingSessionRepository.findByCreatedAtBetween(startDate, endDate);
         return sessions.stream()
-               .map(TrainingSessionMapper::toSummaryResponse)
-               .toList();
+                .map(trainingSessionMapper::toDTO)
+                .collect(Collectors.toList());
     }
-
+    
     @Override
-    public TrainingSessionDetailResponse getSessionById(Long id) {
-        TrainingSession session = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Session not found with ID: " + id));
-
-        return TrainingSessionMapper.toDetailResponse(session);
+    public TrainingSessionDTO createTrainingSession(TrainingSessionDTO trainingSessionDTO) {
+        TrainingSession session = trainingSessionMapper.toEntity(trainingSessionDTO);
+        TrainingSession savedSession = trainingSessionRepository.save(session);
+        return trainingSessionMapper.toDTO(savedSession);
     }
-
+    
     @Override
-    public TrainingSessionDetailResponse createSession(CreateTrainingSessionRequest request) {
-        TrainingSession newSession = TrainingSessionMapper.toEntity(request);
-        TrainingSession savedSession = repository.save(newSession);
-        return TrainingSessionMapper.toDetailResponse(savedSession);
+    public TrainingSessionDTO updateTrainingSession(Long id, TrainingSessionDTO trainingSessionDTO) {
+        TrainingSession existingSession = trainingSessionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Træningssession", "id", id));
+        
+        trainingSessionMapper.updateEntityFromDTO(trainingSessionDTO, existingSession);
+        TrainingSession updatedSession = trainingSessionRepository.save(existingSession);
+        return trainingSessionMapper.toDTO(updatedSession);
     }
-
+    
     @Override
-    public TrainingSessionDetailResponse updateSession(Long id, UpdateTrainingSessionRequest request) {
-       TrainingSession session = repository.findById(id)
-               .orElseThrow(() -> new IllegalArgumentException("Session not found with ID: " + id));
-
-       TrainingSessionMapper.updateEntity(session, request);
-       TrainingSession updatedSession = repository.save(session);
-
-       return TrainingSessionMapper.toDetailResponse(updatedSession);
-    }
-
-    @Override
-    public void deleteSession(Long id) {
-        if (!repository.existsById(id)) {
-            throw new IllegalArgumentException("Session not found with ID: " + id);
+    public void deleteTrainingSession(Long id) {
+        if (!trainingSessionRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Træningssession", "id", id);
         }
-        repository.deleteById(id);
+        trainingSessionRepository.deleteById(id);
     }
 }

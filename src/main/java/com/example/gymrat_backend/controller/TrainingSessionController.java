@@ -1,55 +1,84 @@
 package com.example.gymrat_backend.controller;
 
-import com.example.gymrat_backend.dto.request.CreateTrainingSessionRequest;
-import com.example.gymrat_backend.dto.request.UpdateTrainingSessionRequest;
-import com.example.gymrat_backend.dto.response.TrainingSessionDetailResponse;
-import com.example.gymrat_backend.dto.response.TrainingSessionSummaryResponse;
-import com.example.gymrat_backend.service.TrainingSessionServiceImpl;
+import com.example.gymrat_backend.dto.TrainingSessionDTO;
+import com.example.gymrat_backend.service.TrainingSessionService;
 import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/training-session")
+@RequestMapping("/api/training-sessions")
 public class TrainingSessionController {
-
-    // TODO: Ændre injection til at bruge TrainingSessionService frem for implementationsklassen.
-
-    private final TrainingSessionServiceImpl service;
-
-    public TrainingSessionController(TrainingSessionServiceImpl service) {
-        this.service = service;
+    
+    private final TrainingSessionService trainingSessionService;
+    
+    public TrainingSessionController(TrainingSessionService trainingSessionService) {
+        this.trainingSessionService = trainingSessionService;
     }
-
-    @GetMapping("/list")
-    public ResponseEntity<List<TrainingSessionSummaryResponse>> getAllSessions() {
-        List<TrainingSessionSummaryResponse> sessions = service.getAllSessions();
+    
+    /**
+     * GET /api/training-sessions - Hent alle træningssessioner
+     */
+    @GetMapping
+    public ResponseEntity<List<TrainingSessionDTO>> getAllTrainingSessions() {
+        List<TrainingSessionDTO> sessions = trainingSessionService.getAllTrainingSessions();
         return ResponseEntity.ok(sessions);
     }
-
+    
+    /**
+     * GET /api/training-sessions/{id} - Hent en specifik træningssession
+     */
     @GetMapping("/{id}")
-    public ResponseEntity<TrainingSessionDetailResponse> getSessionById(@PathVariable Long id) {
-        TrainingSessionDetailResponse session = service.getSessionById(id);
+    public ResponseEntity<TrainingSessionDTO> getTrainingSessionById(@PathVariable Long id) {
+        TrainingSessionDTO session = trainingSessionService.getTrainingSessionById(id);
         return ResponseEntity.ok(session);
     }
-
-    @PostMapping("/create")
-    public ResponseEntity<TrainingSessionDetailResponse> createSession(@Valid @RequestBody CreateTrainingSessionRequest request) {
-        TrainingSessionDetailResponse created = service.createSession(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    
+    /**
+     * GET /api/training-sessions/date-range - Hent træningssessioner mellem to datoer
+     * Eksempel: /api/training-sessions/date-range?startDate=2025-01-01&endDate=2025-12-31
+     */
+    @GetMapping("/date-range")
+    public ResponseEntity<List<TrainingSessionDTO>> getTrainingSessionsByDateRange(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        List<TrainingSessionDTO> sessions = 
+            trainingSessionService.getTrainingSessionsByDateRange(startDate, endDate);
+        return ResponseEntity.ok(sessions);
     }
-
-    @PatchMapping("/{id}")
-    public ResponseEntity<TrainingSessionDetailResponse> updateSession(@PathVariable Long id, @Valid @RequestBody UpdateTrainingSessionRequest request) {
-        return ResponseEntity.ok(service.updateSession(id, request));
+    
+    /**
+     * POST /api/training-sessions - Opret en ny træningssession
+     */
+    @PostMapping
+    public ResponseEntity<TrainingSessionDTO> createTrainingSession(
+            @Valid @RequestBody TrainingSessionDTO trainingSessionDTO) {
+        TrainingSessionDTO newSession = trainingSessionService.createTrainingSession(trainingSessionDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newSession);
     }
-
+    
+    /**
+     * PUT /api/training-sessions/{id} - Opdater en eksisterende træningssession
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<TrainingSessionDTO> updateTrainingSession(
+            @PathVariable Long id,
+            @Valid @RequestBody TrainingSessionDTO trainingSessionDTO) {
+        TrainingSessionDTO updatedSession = trainingSessionService.updateTrainingSession(id, trainingSessionDTO);
+        return ResponseEntity.ok(updatedSession);
+    }
+    
+    /**
+     * DELETE /api/training-sessions/{id} - Slet en træningssession
+     */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSession(@PathVariable Long id) {
-        service.deleteSession(id);
+    public ResponseEntity<Void> deleteTrainingSession(@PathVariable Long id) {
+        trainingSessionService.deleteTrainingSession(id);
         return ResponseEntity.noContent().build();
     }
 }
