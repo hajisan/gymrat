@@ -1,60 +1,66 @@
 package com.example.gymrat_backend.service;
 
+import com.example.gymrat_backend.dto.ExerciseDTO;
+import com.example.gymrat_backend.exception.ResourceNotFoundException;
+import com.example.gymrat_backend.mapper.ExerciseMapper;
 import com.example.gymrat_backend.model.Exercise;
 import com.example.gymrat_backend.repository.ExerciseRepository;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class ExerciseServiceImpl implements ExerciseService {
 
     private final ExerciseRepository exerciseRepository;
+    private final ExerciseMapper exerciseMapper;
 
-    @Autowired
-    public ExerciseServiceImpl(ExerciseRepository exerciseRepository) {
+    public ExerciseServiceImpl(ExerciseRepository exerciseRepository, ExerciseMapper exerciseMapper) {
         this.exerciseRepository = exerciseRepository;
+        this.exerciseMapper = exerciseMapper;
     }
 
     @Override
-    public List<Exercise> getAllExercises() {
-        return exerciseRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<ExerciseDTO> getAllExercises() {
+        return exerciseRepository.findAll().stream()
+                .map(exerciseMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Optional<Exercise> getExerciseById(Long id) {
-        return exerciseRepository.findById(id);
+    @Transactional(readOnly = true)
+    public ExerciseDTO getExerciseById(Long id) {
+        Exercise exercise = exerciseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Øvelse", "id", id));
+        return exerciseMapper.toDTO(exercise);
     }
 
     @Override
-    public Exercise createExercise(Exercise exercise) {
-        return exerciseRepository.save(exercise);
+    public ExerciseDTO createExercise(ExerciseDTO exerciseDTO) {
+        Exercise exercise = exerciseMapper.toEntity(exerciseDTO);
+        Exercise savedExercise = exerciseRepository.save(exercise);
+        return exerciseMapper.toDTO(savedExercise);
     }
 
     @Override
-    public Exercise updateExercise(Long id, Exercise updatedExercise) {
-        return exerciseRepository.findById(id)
-                .map(existing -> {
-                    existing.setName(updatedExercise.getName());
-                    existing.setTargetMuscleGroup(updatedExercise.getTargetMuscleGroup());
-                    existing.setEquipment(updatedExercise.getEquipment());
-                    return exerciseRepository.save(existing);
-                })
-                .orElseThrow(() -> new IllegalArgumentException("Exercise not found with ID: " + id));
+    public ExerciseDTO updateExercise(Long id, ExerciseDTO exerciseDTO) {
+        Exercise existingExercise = exerciseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Øvelse", "id", id));
+        
+        exerciseMapper.updateEntityFromDTO(exerciseDTO, existingExercise);
+        Exercise updatedExercise = exerciseRepository.save(existingExercise);
+        return exerciseMapper.toDTO(updatedExercise);
     }
 
     @Override
     public void deleteExercise(Long id) {
         if (!exerciseRepository.existsById(id)) {
-            throw new IllegalArgumentException("Exercise not found with ID: " + id);
+            throw new ResourceNotFoundException("Øvelse", "id", id);
         }
         exerciseRepository.deleteById(id);
     }
-
-
-
 }
