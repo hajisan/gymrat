@@ -1,8 +1,6 @@
 package com.example.gymrat_backend.service;
 
 import com.example.gymrat_backend.model.Exercise;
-import com.example.gymrat_backend.repository.ExerciseRepository;
-
 import java.util.List;
 import java.util.Optional;
 
