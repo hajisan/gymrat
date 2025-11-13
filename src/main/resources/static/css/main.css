@@ -1,0 +1,14 @@
+/* ============================================
+   GymRat - Main Stylesheet
+   Imports all CSS modules
+   ============================================ */
+
+/* Base styles - variables, reset, typography */
+@import url('base.css');
+
+/* Reusable components - buttons, cards, modal, tabs */
+@import url('components.css');
+
+/* View-specific styles */
+@import url('home.css');
+@import url('workout.css');

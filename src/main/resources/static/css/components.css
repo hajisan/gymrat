@@ -1,0 +1,374 @@
+/* ============================================
+   COMPONENTS
+   Reusable UI Components
+   ============================================ */
+
+/* ============================================
+   Buttons
+   ============================================ */
+
+.cta {
+    margin-top: var(--space-md);
+    width: 100%;
+    height: 54px;
+    border-radius: var(--radius-md);
+    background: var(--cta);
+    color: var(--cta-ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 17px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: transform 0.1s ease;
+    touch-action: manipulation;
+}
+
+.cta:active {
+    transform: scale(0.98);
+}
+
+.cta svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* ============================================
+   Cards
+   ============================================ */
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: var(--space-md);
+}
+
+.stat {
+    background: var(--card);
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    box-shadow: var(--shadow);
+    min-height: 110px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease;
+}
+
+.stat__icon {
+    margin-bottom: var(--space-xs);
+}
+
+.stat__icon svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--muted);
+}
+
+.stat__label {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.stat__value {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+/* ============================================
+   Bottom Tab Bar
+   ============================================ */
+
+.tabbar {
+    position: fixed;
+    left: var(--safe-left);
+    right: var(--safe-right);
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--stroke);
+    box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.08);
+    z-index: 1000;
+    padding-bottom: var(--safe-bottom);
+}
+
+.tabs {
+    height: 68px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    color: #666666;
+    font-size: 11px;
+    font-weight: 500;
+    padding: var(--space-xs);
+    transition: all 0.2s ease;
+    -webkit-user-select: none;
+    user-select: none;
+    opacity: 0.6;
+}
+
+.tab svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+    transition: transform 0.2s ease;
+}
+
+.tab--active {
+    color: var(--ink);
+    font-weight: 600;
+    opacity: 1;
+}
+
+.tab--active svg {
+    transform: scale(1.05);
+}
+
+.tab:active {
+    transform: scale(0.95);
+}
+
+/* Dark mode tab overrides */
+@media (prefers-color-scheme: dark) {
+    .tab {
+        color: #666666;
+    }
+
+    .tab--active {
+        color: #000000;
+    }
+}
+
+/* ============================================
+   Modal
+   ============================================ */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 2000;
+    animation: fadeIn 0.2s ease;
+}
+
+.modal {
+    background: var(--card);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    width: 100%;
+    max-width: 600px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.3s ease;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md);
+    border-bottom: 1px solid var(--stroke);
+}
+
+.modal-header h2 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.modal-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink);
+}
+
+.modal-search {
+    padding: var(--space-md);
+    border-bottom: 1px solid var(--stroke);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    background: var(--bg);
+}
+
+.modal-search svg {
+    color: var(--muted);
+    flex-shrink: 0;
+}
+
+.modal-search input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    color: var(--ink);
+    outline: none;
+}
+
+.modal-search input::placeholder {
+    color: var(--muted);
+}
+
+.modal-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-sm) 0;
+}
+
+/* ============================================
+   Placeholder Views
+   ============================================ */
+
+.placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--space-xl);
+    min-height: 50vh;
+}
+
+.placeholder__icon {
+    font-size: 64px;
+    margin-bottom: var(--space-md);
+}
+
+.placeholder h2 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: var(--space-sm);
+}
+
+.placeholder p {
+    color: var(--muted);
+    font-size: 17px;
+}
+
+.view-header {
+    padding: var(--space-lg) var(--space-md);
+    text-align: center;
+}
+
+.view-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: var(--space-xs);
+}
+
+.view-header .subtle {
+    font-size: 17px;
+}
+
+/* ============================================
+   Empty State
+   ============================================ */
+
+.empty-state {
+    padding: var(--space-xl);
+    text-align: center;
+    color: var(--muted);
+}
+
+.empty-state p {
+    font-size: 16px;
+}
+
+/* ============================================
+   Skeleton Loading States
+   ============================================ */
+
+.skeleton {
+    pointer-events: none;
+}
+
+.skeleton-icon,
+.skeleton-text,
+.skeleton-value,
+.skeleton-title {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+    border-radius: 6px;
+}
+
+.skeleton-icon {
+    width: 24px;
+    height: 24px;
+    margin-bottom: var(--space-xs);
+}
+
+.skeleton-text {
+    width: 60%;
+    height: 13px;
+    margin-bottom: 4px;
+}
+
+.skeleton-value {
+    width: 80%;
+    height: 24px;
+}
+
+.skeleton-title {
+    width: 100px;
+    height: 17px;
+    margin-bottom: var(--space-sm);
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}

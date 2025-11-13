@@ -1,0 +1,98 @@
+/* ============================================
+   HOME VIEW
+   Forside med statistik og seneste træning
+   ============================================ */
+
+.home {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    padding: 0 var(--space-md);
+    max-width: 480px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.home__head {
+    padding: var(--space-md) 0;
+}
+
+.brand {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+    margin: 0 0 var(--space-xs);
+}
+
+/* ============================================
+   Section
+   ============================================ */
+
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.section__title {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0;
+    padding: 0 var(--space-xs);
+}
+
+/* ============================================
+   Stats Cards
+   ============================================ */
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-sm);
+}
+
+/* ============================================
+   Last Training Card
+   ============================================ */
+
+.last__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-xs);
+}
+
+.last__title {
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.card .subtle {
+    font-size: 15px;
+    margin-top: 4px;
+}
+
+/* ============================================
+   Responsive Adjustments (iPhone 12 mini: 375x812)
+   ============================================ */
+
+@media (max-width: 380px) {
+    .home {
+        gap: var(--space-md);
+    }
+
+    .stat {
+        padding: 12px;
+        min-height: 100px;
+    }
+
+    .stat__value {
+        font-size: 22px;
+    }
+
+    .cta {
+        height: 50px;
+        font-size: 16px;
+    }
+}
