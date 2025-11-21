@@ -1,0 +1,323 @@
+/* ============================================
+   WORKOUT VIEW
+   Aktiv træning med øvelser og sets
+   ============================================ */
+
+.workout-view {
+    min-height: 100vh;
+    background: var(--bg);
+    padding-bottom: calc(84px + var(--safe-bottom));
+}
+
+/* ============================================
+   Workout Header
+   ============================================ */
+
+.workout-header {
+    position: sticky;
+    top: 0;
+    background: var(--card);
+    border-bottom: 1px solid var(--stroke);
+    padding: var(--space-md);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.close-workout {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink);
+    transition: transform 0.2s ease;
+}
+
+.close-workout:active {
+    transform: scale(0.95);
+}
+
+.workout-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.workout-datetime {
+    margin-left: auto;
+    text-align: right;
+    font-size: 14px;
+}
+
+.workout-date {
+    display: block;
+    color: var(--ink);
+    font-weight: 500;
+}
+
+.workout-time {
+    display: block;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.workout-content {
+    padding: var(--space-md);
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+/* ============================================
+   Add Exercise Button
+   ============================================ */
+
+.add-exercise-btn {
+    width: 100%;
+    height: 54px;
+    border: 2px dashed var(--stroke);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.add-exercise-btn:hover {
+    border-color: var(--ink);
+    background: var(--card);
+}
+
+.add-exercise-btn:active {
+    transform: scale(0.98);
+}
+
+/* ============================================
+   Exercise Card
+   ============================================ */
+
+.workout-exercises {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.exercise-card {
+    background: var(--card);
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+    box-shadow: var(--shadow);
+}
+
+.exercise-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: var(--space-sm);
+}
+
+.exercise-name {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 4px;
+}
+
+.exercise-muscle {
+    font-size: 14px;
+    color: var(--muted);
+    margin: 0;
+}
+
+.exercise-delete {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: transparent;
+    color: #EF4444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+}
+
+.exercise-delete:active {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+/* ============================================
+   Last Performed
+   ============================================ */
+
+.last-performed {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-sm);
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--space-sm);
+    font-size: 14px;
+}
+
+.last-performed-label {
+    color: var(--muted);
+    font-weight: 500;
+}
+
+.last-performed-value {
+    color: var(--ink);
+    font-weight: 600;
+}
+
+/* ============================================
+   Sets
+   ============================================ */
+
+.exercise-sets {
+    margin-bottom: var(--space-sm);
+}
+
+.sets-header {
+    display: grid;
+    grid-template-columns: 60px 1fr 1fr;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-sm);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+}
+
+.add-set-btn {
+    width: 100%;
+    height: 44px;
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius-md);
+    background: var(--bg);
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.add-set-btn:active {
+    transform: scale(0.98);
+}
+
+/* ============================================
+   Complete Workout Button
+   ============================================ */
+
+.complete-workout-btn {
+    width: 100%;
+    height: 54px;
+    border-radius: var(--radius-md);
+    background: var(--cta);
+    color: var(--cta-ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    font-size: 17px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: transform 0.1s ease;
+    margin-top: var(--space-lg);
+}
+
+.complete-workout-btn:active {
+    transform: scale(0.98);
+}
+
+/* ============================================
+   Exercise List (in modal)
+   ============================================ */
+
+.exercise-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.exercise-item {
+    width: 100%;
+    padding: var(--space-md);
+    border: none;
+    border-bottom: 1px solid var(--stroke);
+    background: transparent;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    transition: background 0.2s ease;
+}
+
+.exercise-item:active {
+    background: var(--bg);
+}
+
+.exercise-item-name {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 2px;
+}
+
+.exercise-item-muscle {
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.exercise-item svg {
+    color: var(--muted);
+    flex-shrink: 0;
+}
+
+.exercise-item--added {
+    background: rgba(0, 0, 0, 0.15) !important;
+    border-left: 3px solid #10B981 !important;
+    cursor: pointer !important;
+    padding-left: 13px !important; /* 16px - 3px border */
+    -webkit-tap-highlight-color: transparent;
+}
+
+.exercise-item--added:active {
+    background: rgba(239, 68, 68, 0.15) !important;
+    border-left-color: #EF4444 !important;
+}
+
+.exercise-item--added svg {
+    color: #10B981 !important;
+    font-weight: bold !important;
+    stroke-width: 2.5 !important;
+}
+
+.exercise-item--added .exercise-item-name {
+    color: #86868B !important;
+    -webkit-text-decoration-line: line-through;
+    text-decoration-line: line-through;
+    -webkit-text-decoration-color: #86868B;
+    text-decoration-color: #86868B;
+    -webkit-text-decoration-thickness: 1.5px;
+    text-decoration-thickness: 1.5px;
+}
+
+.exercise-item--added .exercise-item-muscle {
+    color: #86868B !important;
+    opacity: 0.7;
+}
