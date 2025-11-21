@@ -22,8 +22,6 @@ class App {
 
         // Setup global event listeners
         this.setupGlobalListeners();
-
-        console.log('🏋️ GymRat SPA initialized');
     }
 
     setupTabBar() {

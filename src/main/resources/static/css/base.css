@@ -59,6 +59,13 @@ body {
     color: var(--ink);
     line-height: 1.5;
     overflow-x: hidden;
+    overscroll-behavior-y: none; /* Disable pull-to-refresh */
+    -webkit-overflow-scrolling: touch;
+    /* Native app feel - disable text selection and long-press */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
 }
 
 button {
@@ -67,6 +74,20 @@ button {
     border: none;
     background: none;
     -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
+/* Re-enable text selection for form inputs */
+input,
+textarea,
+select {
+    -webkit-user-select: auto;
+    -moz-user-select: auto;
+    user-select: auto;
+    -webkit-touch-callout: default;
 }
 
 /* ============================================
@@ -78,12 +99,15 @@ button {
     display: flex;
     flex-direction: column;
     padding-top: var(--safe-top);
+    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
 }
 
 .app-content {
     flex: 1;
     padding-bottom: calc(84px + var(--safe-bottom));
     transition: opacity 0.15s ease;
+    overscroll-behavior-y: none;
 }
 
 /* ============================================

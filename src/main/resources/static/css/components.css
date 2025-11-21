@@ -101,7 +101,7 @@
 }
 
 .tabs {
-    height: 68px;
+    height: 64px;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
 }
@@ -111,11 +111,11 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 2px;
     color: #666666;
     font-size: 11px;
     font-weight: 500;
-    padding: var(--space-xs);
+    padding: 8px;
     transition: all 0.2s ease;
     -webkit-user-select: none;
     user-select: none;
@@ -166,11 +166,13 @@
     bottom: 0;
     background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     display: flex;
     align-items: flex-end;
     justify-content: center;
     z-index: 2000;
     animation: fadeIn 0.2s ease;
+    transition: opacity 0.3s ease, backdrop-filter 0.3s ease;
 }
 
 .modal {
@@ -178,7 +180,7 @@
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     width: 100%;
     max-width: 600px;
-    max-height: 80vh;
+    max-height: 85vh;
     display: flex;
     flex-direction: column;
     animation: slideUp 0.3s ease;
@@ -209,37 +211,14 @@
     color: var(--ink);
 }
 
-.modal-search {
-    padding: var(--space-md);
-    border-bottom: 1px solid var(--stroke);
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-    background: var(--bg);
-}
-
-.modal-search svg {
-    color: var(--muted);
-    flex-shrink: 0;
-}
-
-.modal-search input {
-    flex: 1;
-    border: none;
-    background: transparent;
-    font-size: 16px;
-    color: var(--ink);
-    outline: none;
-}
-
-.modal-search input::placeholder {
-    color: var(--muted);
-}
-
 .modal-content {
     flex: 1;
     overflow-y: auto;
     padding: var(--space-sm) 0;
+    /* Ensure smooth scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
+    /* Prevent momentum scrolling from closing modal */
+    overscroll-behavior: contain;
 }
 
 /* ============================================
@@ -361,6 +340,32 @@
     }
     to {
         transform: translateY(0);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(100%);
+    }
+}
+
+.modal--closing {
+    animation: slideDown 0.3s ease forwards;
+}
+
+.modal-overlay--closing {
+    animation: fadeOut 0.3s ease forwards;
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
     }
 }
 

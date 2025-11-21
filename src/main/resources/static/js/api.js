@@ -30,6 +30,11 @@ class ApiService {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
 
+            // Handle 204 No Content (e.g., DELETE requests)
+            if (response.status === 204 || response.headers.get('content-length') === '0') {
+                return null;
+            }
+
             return await response.json();
         } catch (error) {
             console.error(`❌ API Error [${endpoint}]:`, error);

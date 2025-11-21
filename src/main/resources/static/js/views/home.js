@@ -166,22 +166,6 @@ export class HomeView {
                 router.navigate('workout');
             });
         }
-
-        // Add touch feedback
-        this.addTouchFeedback();
-    }
-
-    addTouchFeedback() {
-        const cta = document.querySelector('.cta');
-        if (cta) {
-            cta.addEventListener('touchstart', () => {
-                cta.style.transform = 'scale(0.98)';
-            }, { passive: true });
-
-            cta.addEventListener('touchend', () => {
-                cta.style.transform = 'scale(1)';
-            }, { passive: true });
-        }
     }
 
     destroy() {
