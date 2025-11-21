@@ -241,6 +241,7 @@ public class WorkoutServiceImpl implements WorkoutService {
         response.setExerciseId(performedExercise.getExercise().getExerciseId());
         response.setExerciseName(performedExercise.getExercise().getName());
         response.setTargetMuscleGroup(performedExercise.getExercise().getTargetMuscleGroup());
+        response.setEquipment(performedExercise.getExercise().getEquipment());
         response.setOrderNumber(performedExercise.getOrderNumber());
 
         // Map sets

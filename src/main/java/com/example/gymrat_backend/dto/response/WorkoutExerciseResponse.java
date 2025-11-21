@@ -14,6 +14,7 @@ public class WorkoutExerciseResponse {
     private Long exerciseId;
     private String exerciseName;
     private String targetMuscleGroup;
+    private String equipment;
     private Integer orderNumber;
     private List<WorkoutSetResponse> sets = new ArrayList<>();
     private LastPerformedData lastPerformed; // Reference til sidste gang
@@ -24,12 +25,13 @@ public class WorkoutExerciseResponse {
     }
 
     public WorkoutExerciseResponse(Long performedExerciseId, Long exerciseId, String exerciseName,
-                                   String targetMuscleGroup, Integer orderNumber,
+                                   String targetMuscleGroup, String equipment, Integer orderNumber,
                                    List<WorkoutSetResponse> sets, LastPerformedData lastPerformed) {
         this.performedExerciseId = performedExerciseId;
         this.exerciseId = exerciseId;
         this.exerciseName = exerciseName;
         this.targetMuscleGroup = targetMuscleGroup;
+        this.equipment = equipment;
         this.orderNumber = orderNumber;
         this.sets = sets;
         this.lastPerformed = lastPerformed;
@@ -63,6 +65,13 @@ public class WorkoutExerciseResponse {
     }
     public void setTargetMuscleGroup(String targetMuscleGroup) {
         this.targetMuscleGroup = targetMuscleGroup;
+    }
+
+    public String getEquipment() {
+        return equipment;
+    }
+    public void setEquipment(String equipment) {
+        this.equipment = equipment;
     }
 
     public Integer getOrderNumber() {

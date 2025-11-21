@@ -112,7 +112,7 @@ export class WorkoutView {
                         <div class="exercise-header">
                             <div>
                                 <h3 class="exercise-name">${exercise.exerciseName}</h3>
-                                <p class="exercise-muscle">${exercise.equipment || exercise.targetMuscleGroup}</p>
+                                ${exercise.equipment ? `<p class="exercise-muscle">${exercise.equipment}</p>` : ''}
                             </div>
                             <button type="button" class="exercise-delete" data-performed-exercise-id="${exercise.performedExerciseId}" aria-label="Slet øvelse">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
