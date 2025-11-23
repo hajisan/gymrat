@@ -156,6 +156,7 @@ public class WorkoutServiceImpl implements WorkoutService {
     }
 
     @Override
+    @Transactional
     public void deleteSet(Long sessionId, Long performedSetId) {
         PerformedSet performedSet = performedSetRepository.findById(performedSetId)
                 .orElseThrow(() -> new ResourceNotFoundException("Udført sæt", "id", performedSetId));
@@ -165,7 +166,25 @@ public class WorkoutServiceImpl implements WorkoutService {
             throw new ValidationException("Sættet tilhører ikke denne træningssession");
         }
 
+        // Get the set number before deletion
+        int deletedSetNumber = performedSet.getSetNumber();
+        PerformedExercise performedExercise = performedSet.getPerformedExercise();
+
+        // Delete the set
         performedSetRepository.delete(performedSet);
+
+        // Renumber remaining sets with higher set numbers
+        List<PerformedSet> remainingSets = performedSetRepository
+                .findByPerformedExerciseOrderBySetNumberAsc(performedExercise)
+                .stream()
+                .filter(set -> set.getSetNumber() > deletedSetNumber)
+                .collect(Collectors.toList());
+
+        // Decrement set numbers for all remaining sets
+        for (PerformedSet set : remainingSets) {
+            set.setSetNumber(set.getSetNumber() - 1);
+            performedSetRepository.save(set);
+        }
     }
 
     @Override
@@ -184,20 +203,25 @@ public class WorkoutServiceImpl implements WorkoutService {
     @Override
     @Transactional(readOnly = true)
     public WorkoutExerciseResponse.LastPerformedData getLastPerformedData(Long exerciseId) {
-        // Hent alle performed exercises for denne exercise (ekskl. dagens session)
-        LocalDate today = LocalDate.now();
+        return getLastPerformedData(exerciseId, null);
+    }
+
+    // Overloaded method that excludes current session
+    @Transactional(readOnly = true)
+    public WorkoutExerciseResponse.LastPerformedData getLastPerformedData(Long exerciseId, Long excludeSessionId) {
+        // Hent alle performed exercises for denne exercise (ekskl. current session)
         List<PerformedExercise> pastPerformances = performedExerciseRepository.findByExerciseExerciseId(exerciseId)
                 .stream()
-                .filter(pe -> pe.getSession().getCreatedAt().isBefore(today))
+                .filter(pe -> excludeSessionId == null || !pe.getSession().getTrainingSessionId().equals(excludeSessionId))
                 .collect(Collectors.toList());
 
         if (pastPerformances.isEmpty()) {
             return null; // Ingen tidligere data
         }
 
-        // Hent seneste performance
+        // Hent seneste performance (based on session ID, since multiple sessions can happen same day)
         PerformedExercise lastPerformance = pastPerformances.stream()
-                .max((pe1, pe2) -> pe1.getSession().getCreatedAt().compareTo(pe2.getSession().getCreatedAt()))
+                .max((pe1, pe2) -> pe1.getSession().getTrainingSessionId().compareTo(pe2.getSession().getTrainingSessionId()))
                 .orElse(null);
 
         if (lastPerformance == null || lastPerformance.getSets().isEmpty()) {
@@ -242,6 +266,7 @@ public class WorkoutServiceImpl implements WorkoutService {
         response.setExerciseName(performedExercise.getExercise().getName());
         response.setTargetMuscleGroup(performedExercise.getExercise().getTargetMuscleGroup());
         response.setEquipment(performedExercise.getExercise().getEquipment());
+        response.setExerciseType(performedExercise.getExercise().getExerciseType());
         response.setOrderNumber(performedExercise.getOrderNumber());
 
         // Map sets
@@ -250,9 +275,10 @@ public class WorkoutServiceImpl implements WorkoutService {
                 .collect(Collectors.toList());
         response.setSets(setResponses);
 
-        // Hent last performed data
+        // Hent last performed data (exclude current session)
+        Long currentSessionId = performedExercise.getSession().getTrainingSessionId();
         WorkoutExerciseResponse.LastPerformedData lastData =
-                getLastPerformedData(performedExercise.getExercise().getExerciseId());
+                getLastPerformedData(performedExercise.getExercise().getExerciseId(), currentSessionId);
         response.setLastPerformed(lastData);
 
         return response;
