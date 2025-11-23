@@ -191,12 +191,219 @@
 
 .sets-header {
     display: grid;
-    grid-template-columns: 60px 1fr 1fr;
-    gap: var(--space-xs);
-    padding: var(--space-xs) var(--space-sm);
-    font-size: 13px;
-    font-weight: 500;
+    grid-template-columns: 32px 84px minmax(80px, 1fr) minmax(65px, 0.9fr) 52px;
+    gap: 8px;
+    padding: 8px 0 4px 0;
+    font-size: 12px;
+    font-weight: 600;
     color: var(--muted);
+    align-items: center;
+    margin-bottom: 0;
+}
+
+.sets-header > span {
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    text-align: center;
+}
+
+.set-row {
+    display: grid;
+    grid-template-columns: 32px 84px minmax(80px, 1fr) minmax(65px, 0.9fr) 15px;
+    gap: 8px;
+    padding: 8px 0;
+    font-size: 15px;
+    align-items: center;
+    border-radius: var(--radius-sm);
+    transition: background 0.2s ease;
+    min-height: 52px;
+}
+
+.set-row--saved {
+    cursor: pointer;
+    padding: 10px 0;
+}
+
+.set-row--saved:hover {
+    background: var(--bg);
+}
+
+.set-row--saved:active {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.set-number {
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 15px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.set-side {
+    color: var(--ink);
+    font-weight: 700;
+    font-size: 15px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.set-weight, .set-reps {
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 17px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+/* Side selector buttons */
+.side-selector {
+    display: flex;
+    gap: 4px;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.side-btn {
+    flex: 1;
+    min-width: 0;
+    height: 38px;
+    border: 1.5px solid var(--stroke);
+    border-radius: var(--radius-sm);
+    background: var(--card);
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.side-btn:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+}
+
+.side-btn--active {
+    background: var(--cta);
+    color: var(--cta-ink);
+    border-color: var(--cta);
+}
+
+.side-btn:active {
+    transform: scale(0.95);
+}
+
+.set-input {
+    width: 100%;
+    height: 48px;
+    padding: 0 8px;
+    border: 2px solid var(--stroke);
+    border-radius: var(--radius-sm);
+    background: var(--card);
+    color: var(--ink);
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Remove spinner arrows */
+.set-input::-webkit-outer-spin-button,
+.set-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.set-input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.set-input:focus {
+    outline: none;
+    border-color: var(--cta);
+    border-width: 2px;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+.set-input::placeholder {
+    color: var(--muted);
+    font-weight: 500;
+}
+
+.set-row--editing {
+    background: var(--bg);
+    padding: 8px 0;
+    margin: 4px 0;
+}
+
+.set-delete {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: transparent;
+    color: #EF4444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+    cursor: pointer;
+    flex-shrink: 0;
+    justify-self: center;
+}
+
+.set-delete:active {
+    background: rgba(239, 68, 68, 0.15);
+    transform: scale(0.95);
+}
+
+/* Set note */
+.set-note-row {
+    padding: 0 0 4px 0;
+    margin-top: -6px;
+    margin-bottom: 8px;
+}
+
+.set-note-input {
+    width: 100%;
+    padding: 6px var(--space-sm);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--muted);
+    font-size: 13px;
+    font-style: italic;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.set-note-input:hover {
+    background: var(--bg);
+}
+
+.set-note-input:focus {
+    outline: none;
+    border-color: var(--stroke);
+    background: var(--card);
+    color: var(--ink);
+    font-style: normal;
+    cursor: text;
+}
+
+.set-note-input::placeholder {
+    color: var(--muted);
+    font-style: italic;
 }
 
 .add-set-btn {
@@ -223,6 +430,51 @@
    Complete Workout Button
    ============================================ */
 
+.add-note-btn {
+    width: 100%;
+    min-height: 44px;
+    border-radius: var(--radius-md);
+    background: transparent;
+    border: 1px solid var(--stroke);
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    margin-top: var(--space-lg);
+    padding: var(--space-sm) var(--space-md);
+}
+
+.add-note-btn:active {
+    transform: scale(0.98);
+    background: var(--bg);
+}
+
+.add-note-btn--has-note {
+    background: var(--card);
+    border-color: var(--ink);
+    color: var(--ink);
+    justify-content: flex-start;
+    min-height: auto;
+    padding: var(--space-md);
+}
+
+.add-note-btn--has-note svg {
+    color: #10B981;
+    flex-shrink: 0;
+}
+
+.note-btn-text {
+    flex: 1;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .complete-workout-btn {
     width: 100%;
     height: 54px;
@@ -237,11 +489,51 @@
     font-weight: 600;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     transition: transform 0.1s ease;
-    margin-top: var(--space-lg);
+    margin-top: var(--space-sm);
 }
 
 .complete-workout-btn:active {
     transform: scale(0.98);
+}
+
+/* ============================================
+   Note Modal
+   ============================================ */
+
+.note-input-container {
+    padding: var(--space-md);
+}
+
+.workout-note-textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: var(--space-md);
+    border: 2px solid var(--stroke);
+    border-radius: var(--radius-md);
+    background: var(--card);
+    color: var(--ink);
+    font-size: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.5;
+    resize: vertical;
+    transition: border-color 0.2s ease;
+}
+
+.workout-note-textarea:focus {
+    outline: none;
+    border-color: var(--cta);
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+.workout-note-textarea::placeholder {
+    color: var(--muted);
+}
+
+.note-char-count {
+    margin-top: var(--space-xs);
+    text-align: right;
+    font-size: 13px;
+    color: var(--muted);
 }
 
 /* ============================================

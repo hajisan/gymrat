@@ -5,6 +5,7 @@
 
 import { api } from '../api.js';
 import { state } from '../state.js';
+import { router } from '../router.js';
 
 export class WorkoutView {
     constructor() {
@@ -12,6 +13,8 @@ export class WorkoutView {
         this.workoutData = null;
         this.exercises = []; // Alle tilgængelige øvelser
         this.showExerciseModal = false;
+        this.showNoteModal = false;
+        this.workoutNote = '';
     }
 
     async render() {
@@ -26,6 +29,7 @@ export class WorkoutView {
                 ${this.renderHeader()}
                 ${this.renderContent()}
                 ${this.showExerciseModal ? this.renderExerciseModal() : ''}
+                ${this.showNoteModal ? this.renderNoteModal() : ''}
             </div>
         `;
     }
@@ -122,14 +126,51 @@ export class WorkoutView {
                             </button>
                         </div>
                         
-                        ${exercise.lastPerformed ? this.renderLastPerformed(exercise.lastPerformed) : ''}
+                        ${exercise.lastPerformed ? this.renderLastPerformed(exercise.lastPerformed, exercise.exerciseType) : ''}
                         
-                        <div class="exercise-sets">
+                        <div class="exercise-sets" id="sets-container-${exercise.performedExerciseId}">
                             <div class="sets-header">
                                 <span>Set</span>
-                                <span>Vægt (kg)</span>
-                                <span>Reps</span>
+                                <span>Side</span>
+                                <span>Kg</span>
+                                <span>${exercise.exerciseType === 'DURATION_BASED' ? 'Sek' : 'Reps'}</span>
+                                <span></span>
                             </div>
+                            ${exercise.sets && exercise.sets.length > 0 ? exercise.sets.map(set => {
+                                const weightDisplay = set.weight ? set.weight.toString().replace('.', ',') : '-';
+                                const valueDisplay = exercise.exerciseType === 'DURATION_BASED'
+                                    ? (set.durationSeconds ? `${set.durationSeconds}s` : '-')
+                                    : (set.reps || '-');
+                                return `
+                                <div class="set-row set-row--saved"
+                                     data-set-id="${set.performedSetId}"
+                                     data-set-number="${set.setNumber}"
+                                     data-performed-exercise-id="${exercise.performedExerciseId}"
+                                     data-exercise-type="${exercise.exerciseType || 'REP_BASED'}"
+                                     data-side="${set.sideOfBody || 'BOTH'}"
+                                     data-weight="${set.weight || ''}"
+                                     data-reps="${set.reps || ''}"
+                                     data-duration="${set.durationSeconds || ''}">
+                                    <span class="set-number">${set.setNumber}</span>
+                                    <span class="set-side">${set.sideOfBody === 'LEFT' ? 'V' : set.sideOfBody === 'RIGHT' ? 'H' : 'B'}</span>
+                                    <span class="set-weight">${weightDisplay}</span>
+                                    <span class="set-reps">${valueDisplay}</span>
+                                    <button type="button" class="set-delete" data-set-id="${set.performedSetId}" aria-label="Slet sæt">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="set-note-row">
+                                    <input type="text"
+                                           class="set-note-input"
+                                           placeholder="Tilføj kommentar"
+                                           value="${set.note || ''}"
+                                           data-set-id="${set.performedSetId}">
+                                </div>
+                                `;
+                            }).join('') : ''}
                         </div>
 
                         <button class="add-set-btn" data-performed-exercise-id="${exercise.performedExerciseId}">
@@ -145,25 +186,52 @@ export class WorkoutView {
         `;
     }
 
-    renderLastPerformed(lastData) {
-        if (!lastData.averageWeight && !lastData.averageReps) {
+    renderLastPerformed(lastData, exerciseType) {
+        const isDurationBased = exerciseType === 'DURATION_BASED';
+
+        // Check if we have any data to show
+        if (!lastData.averageWeight && !lastData.averageReps && !lastData.averageDuration) {
             return '';
         }
 
-        const weight = lastData.averageWeight ? `${Math.round(lastData.averageWeight)}kg` : '';
-        const reps = lastData.averageReps ? `${lastData.averageReps} reps` : '';
-        const separator = weight && reps ? ' × ' : '';
+        // Format weight with comma (Danish/European format)
+        const weight = lastData.averageWeight ?
+            `${Math.round(lastData.averageWeight).toString().replace('.', ',')}kg` : '';
+
+        // Show duration or reps based on exercise type
+        const value = isDurationBased
+            ? (lastData.averageDuration ? `${lastData.averageDuration}s` : '')
+            : (lastData.averageReps ? `${lastData.averageReps} reps` : '');
+
+        const separator = weight && value ? ' × ' : '';
+
+        // Don't show if no data
+        if (!weight && !value) {
+            return '';
+        }
 
         return `
             <div class="last-performed">
                 <span class="last-performed-label">Sidst:</span>
-                <span class="last-performed-value">${weight}${separator}${reps}</span>
+                <span class="last-performed-value">${weight}${separator}${value}</span>
             </div>
         `;
     }
 
     renderCompleteButton() {
+        const hasNote = this.workoutNote && this.workoutNote.trim().length > 0;
+        const notePreview = hasNote ? this.workoutNote.substring(0, 50) + (this.workoutNote.length > 50 ? '...' : '') : '';
+
         return `
+            <button class="add-note-btn ${hasNote ? 'add-note-btn--has-note' : ''}" id="addNoteBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    ${hasNote ? '<polyline points="9 11 12 14 16 10"></polyline>' : '<line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line>'}
+                </svg>
+                <span class="note-btn-text">${hasNote ? notePreview : 'Tilføj note (valgfrit)'}</span>
+            </button>
+
             <button class="complete-workout-btn" id="completeWorkoutBtn">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="20 6 9 17 4 12"></polyline>
@@ -230,6 +298,39 @@ export class WorkoutView {
         `;
     }
 
+    renderNoteModal() {
+        return `
+            <div class="modal-overlay" id="noteModal">
+                <div class="modal">
+                    <div class="modal-header">
+                        <h2>Note</h2>
+                        <button class="modal-close" id="closeNoteModalBtn" aria-label="Luk">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="modal-content">
+                        <div class="note-input-container">
+                            <textarea
+                                id="workoutNoteInput"
+                                class="workout-note-textarea"
+                                placeholder="Skriv en note om din træning..."
+                                maxlength="255"
+                                rows="6"
+                            >${this.workoutNote}</textarea>
+                            <div class="note-char-count">
+                                <span id="noteCharCount">${this.workoutNote.length}</span>/255
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     mounted() {
         this.setupEventListeners();
     }
@@ -255,9 +356,20 @@ export class WorkoutView {
             completeBtn.addEventListener('click', () => this.completeWorkout());
         }
 
+        // Add Note button
+        const addNoteBtn = document.getElementById('addNoteBtn');
+        if (addNoteBtn) {
+            addNoteBtn.addEventListener('click', () => this.openNoteModal());
+        }
+
         // Exercise modal event listeners
         if (this.showExerciseModal) {
             this.setupModalListeners();
+        }
+
+        // Note modal event listeners
+        if (this.showNoteModal) {
+            this.setupNoteModalListeners();
         }
 
         // Delete exercise buttons
@@ -267,6 +379,46 @@ export class WorkoutView {
                 e.stopPropagation();
                 const performedExerciseId = e.currentTarget.dataset.performedExerciseId;
                 this.deleteExercise(performedExerciseId);
+            });
+        });
+
+        // Add set buttons
+        document.querySelectorAll('.add-set-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const performedExerciseId = e.currentTarget.dataset.performedExerciseId;
+                this.addSet(performedExerciseId);
+            });
+        });
+
+        // Saved set rows - click to edit
+        document.querySelectorAll('.set-row--saved').forEach(row => {
+            row.addEventListener('click', (e) => {
+                // Don't trigger edit if clicking delete button
+                if (e.target.closest('.set-delete')) {
+                    return;
+                }
+                e.preventDefault();
+                this.editSet(row);
+            });
+        });
+
+        // Delete set buttons
+        document.querySelectorAll('.set-delete').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const setId = e.currentTarget.dataset.setId;
+                this.deleteSet(setId);
+            });
+        });
+
+        // Set note inputs
+        document.querySelectorAll('.set-note-input').forEach(input => {
+            input.addEventListener('blur', (e) => {
+                const setId = e.currentTarget.dataset.setId;
+                const note = e.currentTarget.value;
+                this.saveNote(setId, note);
             });
         });
     }
@@ -354,6 +506,92 @@ export class WorkoutView {
         }
     }
 
+    async openNoteModal() {
+        this.showNoteModal = true;
+
+        // Re-render content directly instead of full router refresh
+        const contentElement = document.getElementById('app-content');
+        if (contentElement) {
+            contentElement.innerHTML = await this.render();
+            this.setupEventListeners();
+
+            // Focus the textarea after rendering
+            setTimeout(() => {
+                const noteInput = document.getElementById('workoutNoteInput');
+                if (noteInput) {
+                    noteInput.focus();
+                }
+            }, 100);
+        }
+    }
+
+    async closeNoteModal() {
+        // Save the note text before closing
+        const noteInput = document.getElementById('workoutNoteInput');
+        if (noteInput) {
+            this.workoutNote = noteInput.value;
+        }
+
+        // Add closing animation
+        const modalOverlay = document.getElementById('noteModal');
+        const modal = modalOverlay?.querySelector('.modal');
+
+        if (modalOverlay && modal) {
+            // Prevent any transitions on app-content during modal close
+            const contentElement = document.getElementById('app-content');
+            if (contentElement) {
+                contentElement.style.transition = 'none';
+            }
+
+            // Animate both modal and overlay
+            modalOverlay.classList.add('modal-overlay--closing');
+            modal.classList.add('modal--closing');
+
+            // Wait for animation to complete
+            await new Promise(resolve => setTimeout(resolve, 350));
+        }
+
+        this.showNoteModal = false;
+
+        // Re-render content directly
+        const contentElement = document.getElementById('app-content');
+        if (contentElement) {
+            contentElement.innerHTML = await this.render();
+            // Restore transition after render
+            setTimeout(() => {
+                contentElement.style.transition = '';
+            }, 50);
+            this.setupEventListeners();
+        }
+    }
+
+    setupNoteModalListeners() {
+        // Close modal button
+        const closeModalBtn = document.getElementById('closeNoteModalBtn');
+        const modalOverlay = document.getElementById('noteModal');
+
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', () => this.closeNoteModal());
+        }
+
+        if (modalOverlay) {
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) {
+                    this.closeNoteModal();
+                }
+            });
+        }
+
+        // Character count update
+        const noteInput = document.getElementById('workoutNoteInput');
+        const charCount = document.getElementById('noteCharCount');
+        if (noteInput && charCount) {
+            noteInput.addEventListener('input', (e) => {
+                charCount.textContent = e.target.value.length;
+            });
+        }
+    }
+
     async addExercise(exerciseId) {
         try {
             await api.request(`/workout/${this.sessionId}/exercises`, {
@@ -378,6 +616,46 @@ export class WorkoutView {
                         e.stopPropagation();
                         const performedExerciseId = e.currentTarget.dataset.performedExerciseId;
                         this.deleteExercise(performedExerciseId);
+                    });
+                });
+
+                // Re-setup add-set button listeners
+                document.querySelectorAll('.add-set-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const performedExerciseId = e.currentTarget.dataset.performedExerciseId;
+                        this.addSet(performedExerciseId);
+                    });
+                });
+
+                // Re-setup saved set row click listeners
+                document.querySelectorAll('.set-row--saved').forEach(row => {
+                    row.addEventListener('click', (e) => {
+                        // Don't trigger edit if clicking delete button
+                        if (e.target.closest('.set-delete')) {
+                            return;
+                        }
+                        e.preventDefault();
+                        this.editSet(row);
+                    });
+                });
+
+                // Re-setup delete set button listeners
+                document.querySelectorAll('.set-delete').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const setId = e.currentTarget.dataset.setId;
+                        this.deleteSet(setId);
+                    });
+                });
+
+                // Re-setup note input listeners
+                document.querySelectorAll('.set-note-input').forEach(input => {
+                    input.addEventListener('blur', (e) => {
+                        const setId = e.currentTarget.dataset.setId;
+                        const note = e.currentTarget.value;
+                        this.saveNote(setId, note);
                     });
                 });
             }
@@ -446,6 +724,46 @@ export class WorkoutView {
                         this.deleteExercise(performedExerciseId);
                     });
                 });
+
+                // Re-setup add-set button listeners
+                document.querySelectorAll('.add-set-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const performedExerciseId = e.currentTarget.dataset.performedExerciseId;
+                        this.addSet(performedExerciseId);
+                    });
+                });
+
+                // Re-setup saved set row click listeners
+                document.querySelectorAll('.set-row--saved').forEach(row => {
+                    row.addEventListener('click', (e) => {
+                        // Don't trigger edit if clicking delete button
+                        if (e.target.closest('.set-delete')) {
+                            return;
+                        }
+                        e.preventDefault();
+                        this.editSet(row);
+                    });
+                });
+
+                // Re-setup delete set button listeners
+                document.querySelectorAll('.set-delete').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const setId = e.currentTarget.dataset.setId;
+                        this.deleteSet(setId);
+                    });
+                });
+
+                // Re-setup note input listeners
+                document.querySelectorAll('.set-note-input').forEach(input => {
+                    input.addEventListener('blur', (e) => {
+                        const setId = e.currentTarget.dataset.setId;
+                        const note = e.currentTarget.value;
+                        this.saveNote(setId, note);
+                    });
+                });
             }
 
             // Update the modal item to show it's no longer added
@@ -490,6 +808,588 @@ export class WorkoutView {
         }
     }
 
+    async addSet(performedExerciseId) {
+        // Check if there's already a set being edited
+        const setsContainer = document.getElementById(`sets-container-${performedExerciseId}`);
+        if (!setsContainer) {
+            console.error('Sets container not found');
+            return;
+        }
+
+        const existingEditingRow = setsContainer.querySelector('.set-row--editing');
+        if (existingEditingRow) {
+            // There's already a set being edited, don't add another one
+            console.log('Cannot add new set while another is being edited');
+            // Focus the weight input of the existing editing row
+            const weightInput = existingEditingRow.querySelector('.set-weight-input');
+            if (weightInput) {
+                weightInput.focus();
+            }
+            return;
+        }
+
+        // Find the exercise
+        const exercise = this.workoutData?.exercises?.find(
+            ex => ex.performedExerciseId === parseInt(performedExerciseId)
+        );
+
+        if (!exercise) {
+            console.error('Exercise not found');
+            return;
+        }
+
+        // Calculate next set number
+        const nextSetNumber = exercise.sets ? exercise.sets.length + 1 : 1;
+
+        // Determine if this is a duration-based exercise
+        const isDurationBased = exercise.exerciseType === 'DURATION_BASED';
+
+        // Create the new set row
+        const setRow = document.createElement('div');
+        setRow.className = 'set-row set-row--editing';
+        setRow.dataset.saving = 'false'; // Flag to prevent multiple saves
+        setRow.dataset.selectedSide = 'BOTH'; // Default to BOTH
+        setRow.dataset.exerciseType = exercise.exerciseType || 'REP_BASED';
+        setRow.innerHTML = `
+            <span class="set-number">${nextSetNumber}</span>
+            <div class="side-selector">
+                <button type="button" class="side-btn" data-side="LEFT">V</button>
+                <button type="button" class="side-btn side-btn--active" data-side="BOTH">B</button>
+                <button type="button" class="side-btn" data-side="RIGHT">H</button>
+            </div>
+            <input type="text"
+                   inputmode="decimal"
+                   class="set-input set-weight-input"
+                   placeholder="0"
+                   data-performed-exercise-id="${performedExerciseId}"
+                   data-set-number="${nextSetNumber}">
+            <input type="text"
+                   inputmode="numeric"
+                   class="set-input ${isDurationBased ? 'set-duration-input' : 'set-reps-input'}"
+                   placeholder="${isDurationBased ? 'Sek' : '0'}"
+                   data-performed-exercise-id="${performedExerciseId}"
+                   data-set-number="${nextSetNumber}">
+        `;
+
+        setsContainer.appendChild(setRow);
+
+        // Side selector button handlers
+        const sideButtons = setRow.querySelectorAll('.side-btn');
+        sideButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                // Remove active from all buttons
+                sideButtons.forEach(b => b.classList.remove('side-btn--active'));
+                // Add active to clicked button
+                btn.classList.add('side-btn--active');
+                // Store selected side
+                setRow.dataset.selectedSide = btn.dataset.side;
+            });
+        });
+
+        // Focus the weight input
+        const weightInput = setRow.querySelector('.set-weight-input');
+        const valueInput = setRow.querySelector('.set-reps-input') || setRow.querySelector('.set-duration-input');
+
+        // Save function that both inputs will use
+        const saveHandler = () => {
+            // Small delay to allow for focus changes between inputs
+            setTimeout(() => {
+                const activeElement = document.activeElement;
+                const isStillInRow = setRow.contains(activeElement);
+                // Only save if focus has left the row entirely
+                if (!isStillInRow) {
+                    this.saveSet(performedExerciseId, nextSetNumber, setRow);
+                }
+            }, 100);
+        };
+
+        if (weightInput) {
+            weightInput.focus();
+
+            weightInput.addEventListener('blur', saveHandler);
+            weightInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    // Move to value input (reps or duration)
+                    if (valueInput) valueInput.focus();
+                }
+            });
+        }
+
+        if (valueInput) {
+            valueInput.addEventListener('blur', saveHandler);
+            valueInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    e.target.blur();
+                }
+            });
+        }
+    }
+
+    editSet(setRow) {
+        // Don't edit if already in editing mode
+        if (setRow.classList.contains('set-row--editing')) {
+            return;
+        }
+
+        const performedExerciseId = setRow.dataset.performedExerciseId;
+        const setNumber = setRow.dataset.setNumber;
+        const side = setRow.dataset.side || 'BOTH';
+        const weight = setRow.dataset.weight;
+        const reps = setRow.dataset.reps;
+        const duration = setRow.dataset.duration;
+        const exerciseType = setRow.dataset.exerciseType || 'REP_BASED';
+
+        // Determine if this is a duration-based exercise
+        const isDurationBased = exerciseType === 'DURATION_BASED';
+
+        // Convert weight to Danish format (comma instead of dot) for display
+        const weightDisplay = weight ? weight.replace('.', ',') : '';
+        const valueDisplay = isDurationBased ? duration : reps;
+
+        // Convert to editing mode
+        setRow.classList.remove('set-row--saved');
+        setRow.classList.add('set-row--editing');
+        setRow.dataset.saving = 'false';
+        setRow.dataset.selectedSide = side;
+
+        setRow.innerHTML = `
+            <span class="set-number">${setNumber}</span>
+            <div class="side-selector">
+                <button type="button" class="side-btn ${side === 'LEFT' ? 'side-btn--active' : ''}" data-side="LEFT">V</button>
+                <button type="button" class="side-btn ${side === 'BOTH' ? 'side-btn--active' : ''}" data-side="BOTH">B</button>
+                <button type="button" class="side-btn ${side === 'RIGHT' ? 'side-btn--active' : ''}" data-side="RIGHT">H</button>
+            </div>
+            <input type="text"
+                   inputmode="decimal"
+                   class="set-input set-weight-input"
+                   placeholder="0"
+                   value="${weightDisplay}"
+                   data-performed-exercise-id="${performedExerciseId}"
+                   data-set-number="${setNumber}">
+            <input type="text"
+                   inputmode="numeric"
+                   class="set-input ${isDurationBased ? 'set-duration-input' : 'set-reps-input'}"
+                   placeholder="${isDurationBased ? 'Sek' : '0'}"
+                   value="${valueDisplay}"
+                   data-performed-exercise-id="${performedExerciseId}"
+                   data-set-number="${setNumber}">
+        `;
+
+        // Side selector button handlers
+        const sideButtons = setRow.querySelectorAll('.side-btn');
+        sideButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                // Remove active from all buttons
+                sideButtons.forEach(b => b.classList.remove('side-btn--active'));
+                // Add active to clicked button
+                btn.classList.add('side-btn--active');
+                // Store selected side
+                setRow.dataset.selectedSide = btn.dataset.side;
+            });
+        });
+
+        // Focus the weight input
+        const weightInput = setRow.querySelector('.set-weight-input');
+        const valueInput = setRow.querySelector('.set-reps-input') || setRow.querySelector('.set-duration-input');
+
+        // Save function that both inputs will use
+        const updateHandler = () => {
+            // Small delay to allow for focus changes between inputs
+            setTimeout(() => {
+                const activeElement = document.activeElement;
+                const isStillInRow = setRow.contains(activeElement);
+                // Only save if focus has left the row entirely
+                if (!isStillInRow) {
+                    this.updateSet(performedExerciseId, setNumber, setRow);
+                }
+            }, 100);
+        };
+
+        if (weightInput) {
+            weightInput.focus();
+            // Select all text for easy editing
+            weightInput.select();
+
+            weightInput.addEventListener('blur', updateHandler);
+            weightInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    // Move to value input (reps or duration)
+                    if (valueInput) {
+                        valueInput.focus();
+                        valueInput.select();
+                    }
+                }
+            });
+        }
+
+        if (valueInput) {
+            valueInput.addEventListener('blur', updateHandler);
+            valueInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    e.target.blur();
+                }
+            });
+        }
+    }
+
+    async updateSet(performedExerciseId, setNumber, setRow) {
+        // Prevent multiple saves
+        if (setRow.dataset.saving === 'true') {
+            return;
+        }
+        setRow.dataset.saving = 'true';
+
+        const weightInput = setRow.querySelector('.set-weight-input');
+        const repsInput = setRow.querySelector('.set-reps-input');
+        const durationInput = setRow.querySelector('.set-duration-input');
+        const selectedSide = setRow.dataset.selectedSide || 'BOTH';
+        const exerciseType = setRow.dataset.exerciseType || 'REP_BASED';
+
+        // Replace comma with dot for decimal separator (Danish/European format)
+        const weight = weightInput?.value ? parseFloat(weightInput.value.replace(',', '.')) : null;
+        const reps = repsInput?.value ? parseInt(repsInput.value) : null;
+        const durationSeconds = durationInput?.value ? parseInt(durationInput.value) : null;
+
+        // Don't save if weight and value (reps or duration) are both empty
+        if (!weight && !reps && !durationSeconds) {
+            setRow.dataset.saving = 'false';
+            return;
+        }
+
+        try {
+            // Call backend API to update the set (same endpoint, backend handles update)
+            await api.request(`/workout/${this.sessionId}/sets`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    performedExerciseId: parseInt(performedExerciseId),
+                    setNumber: parseInt(setNumber),
+                    sideOfBody: selectedSide,
+                    weight: weight,
+                    reps: reps,
+                    durationSeconds: durationSeconds,
+                    completed: false
+                })
+            });
+
+            const sideDisplay = selectedSide === 'LEFT' ? 'V' : selectedSide === 'RIGHT' ? 'H' : 'B';
+
+            // Format weight with comma for display (Danish/European format)
+            const weightDisplay = weight ? weight.toString().replace('.', ',') : '-';
+
+            // Determine value display based on exercise type
+            const valueDisplay = exerciseType === 'DURATION_BASED'
+                ? (durationSeconds ? `${durationSeconds}s` : '-')
+                : (reps || '-');
+
+            // Reload workout data to get the set ID
+            this.workoutData = await api.request(`/workout/${this.sessionId}`);
+            state.set('activeWorkout', this.workoutData);
+
+            // Find the saved set to get its ID
+            const exercise = this.workoutData.exercises.find(ex => ex.performedExerciseId === parseInt(performedExerciseId));
+            const savedSet = exercise?.sets?.find(s => s.setNumber === parseInt(setNumber));
+
+            // Update the row to show saved state
+            setRow.classList.remove('set-row--editing');
+            setRow.classList.add('set-row--saved');
+            setRow.dataset.setId = savedSet?.performedSetId || '';
+            setRow.dataset.performedExerciseId = performedExerciseId;
+            setRow.dataset.setNumber = setNumber;
+            setRow.dataset.exerciseType = exerciseType;
+            setRow.dataset.side = selectedSide;
+            setRow.dataset.weight = weight || '';
+            setRow.dataset.reps = reps || '';
+            setRow.dataset.duration = durationSeconds || '';
+            setRow.innerHTML = `
+                <span class="set-number">${setNumber}</span>
+                <span class="set-side">${sideDisplay}</span>
+                <span class="set-weight">${weightDisplay}</span>
+                <span class="set-reps">${valueDisplay}</span>
+                <button type="button" class="set-delete" data-set-id="${savedSet?.performedSetId || ''}" aria-label="Slet sæt">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                </button>
+            `;
+
+            // Re-attach click listener for future edits
+            setRow.addEventListener('click', (e) => {
+                // Don't trigger edit if clicking delete button
+                if (e.target.closest('.set-delete')) {
+                    return;
+                }
+                e.preventDefault();
+                this.editSet(setRow);
+            });
+
+            // Re-attach delete button listener
+            const deleteBtn = setRow.querySelector('.set-delete');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const setId = e.currentTarget.dataset.setId;
+                    this.deleteSet(setId);
+                });
+            }
+
+            // Check if note row already exists (from editing existing set)
+            let noteRow = setRow.nextElementSibling;
+            if (noteRow && noteRow.classList.contains('set-note-row')) {
+                // Update existing note row
+                const noteInput = noteRow.querySelector('.set-note-input');
+                if (noteInput) {
+                    noteInput.value = savedSet?.note || '';
+                    noteInput.dataset.setId = savedSet?.performedSetId || '';
+                }
+            } else {
+                // Add new note input row after this set row
+                noteRow = document.createElement('div');
+                noteRow.className = 'set-note-row';
+                noteRow.innerHTML = `
+                    <input type="text"
+                           class="set-note-input"
+                           placeholder="Tilføj kommentar"
+                           value="${savedSet?.note || ''}"
+                           data-set-id="${savedSet?.performedSetId || ''}">
+                `;
+                setRow.parentNode.insertBefore(noteRow, setRow.nextSibling);
+            }
+
+            // Attach note input listener
+            const noteInput = noteRow.querySelector('.set-note-input');
+            if (noteInput) {
+                // Remove old listeners (if any) by cloning and replacing
+                const newNoteInput = noteInput.cloneNode(true);
+                noteInput.parentNode.replaceChild(newNoteInput, noteInput);
+
+                newNoteInput.addEventListener('blur', (e) => {
+                    const setId = e.currentTarget.dataset.setId;
+                    const note = e.currentTarget.value;
+                    this.saveNote(setId, note);
+                });
+            }
+
+        } catch (error) {
+            console.error('Failed to update set. Full error:', error);
+            console.error('Error response:', error.response);
+            setRow.dataset.saving = 'false';
+            alert(`Kunne ikke opdatere sæt. Fejl: ${error.message || 'Ukendt fejl'}`);
+        }
+    }
+
+    async saveSet(performedExerciseId, setNumber, setRow) {
+        // Prevent multiple saves
+        if (setRow.dataset.saving === 'true') {
+            return;
+        }
+        setRow.dataset.saving = 'true';
+
+        const weightInput = setRow.querySelector('.set-weight-input');
+        const repsInput = setRow.querySelector('.set-reps-input');
+        const durationInput = setRow.querySelector('.set-duration-input');
+        const selectedSide = setRow.dataset.selectedSide || 'BOTH';
+        const exerciseType = setRow.dataset.exerciseType || 'REP_BASED';
+
+        // Replace comma with dot for decimal separator (Danish/European format)
+        const weight = weightInput?.value ? parseFloat(weightInput.value.replace(',', '.')) : null;
+        const reps = repsInput?.value ? parseInt(repsInput.value) : null;
+        const durationSeconds = durationInput?.value ? parseInt(durationInput.value) : null;
+
+        // Don't save if weight and value (reps or duration) are both empty
+        if (!weight && !reps && !durationSeconds) {
+            setRow.dataset.saving = 'false';
+            return;
+        }
+
+        try {
+            // Call backend API to log the set
+            await api.request(`/workout/${this.sessionId}/sets`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    performedExerciseId: parseInt(performedExerciseId),
+                    setNumber: setNumber,
+                    sideOfBody: selectedSide,
+                    weight: weight,
+                    reps: reps,
+                    durationSeconds: durationSeconds,
+                    completed: false
+                })
+            });
+
+            const sideDisplay = selectedSide === 'LEFT' ? 'V' : selectedSide === 'RIGHT' ? 'H' : 'B';
+
+            // Format weight with comma for display (Danish/European format)
+            const weightDisplay = weight ? weight.toString().replace('.', ',') : '-';
+
+            // Determine value display based on exercise type
+            const valueDisplay = exerciseType === 'DURATION_BASED'
+                ? (durationSeconds ? `${durationSeconds}s` : '-')
+                : (reps || '-');
+
+            // Reload workout data to get the set ID
+            this.workoutData = await api.request(`/workout/${this.sessionId}`);
+            state.set('activeWorkout', this.workoutData);
+
+            // Find the saved set to get its ID
+            const exercise = this.workoutData.exercises.find(ex => ex.performedExerciseId === parseInt(performedExerciseId));
+            const savedSet = exercise?.sets?.find(s => s.setNumber === parseInt(setNumber));
+
+            // Update the row to show saved state
+            setRow.classList.remove('set-row--editing');
+            setRow.classList.add('set-row--saved');
+            setRow.dataset.setId = savedSet?.performedSetId || '';
+            setRow.dataset.performedExerciseId = performedExerciseId;
+            setRow.dataset.setNumber = setNumber;
+            setRow.dataset.exerciseType = exerciseType;
+            setRow.dataset.side = selectedSide;
+            setRow.dataset.weight = weight || '';
+            setRow.dataset.reps = reps || '';
+            setRow.dataset.duration = durationSeconds || '';
+            setRow.innerHTML = `
+                <span class="set-number">${setNumber}</span>
+                <span class="set-side">${sideDisplay}</span>
+                <span class="set-weight">${weightDisplay}</span>
+                <span class="set-reps">${valueDisplay}</span>
+                <button type="button" class="set-delete" data-set-id="${savedSet?.performedSetId || ''}" aria-label="Slet sæt">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                </button>
+            `;
+
+            // Re-attach click listener for future edits
+            setRow.addEventListener('click', (e) => {
+                // Don't trigger edit if clicking delete button
+                if (e.target.closest('.set-delete')) {
+                    return;
+                }
+                e.preventDefault();
+                this.editSet(setRow);
+            });
+
+            // Re-attach delete button listener
+            const deleteBtn = setRow.querySelector('.set-delete');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const setId = e.currentTarget.dataset.setId;
+                    this.deleteSet(setId);
+                });
+            }
+
+            // Add note input row after this set row
+            const noteRow = document.createElement('div');
+            noteRow.className = 'set-note-row';
+            noteRow.innerHTML = `
+                <input type="text"
+                       class="set-note-input"
+                       placeholder="Tilføj kommentar"
+                       value="${savedSet?.note || ''}"
+                       data-set-id="${savedSet?.performedSetId || ''}">
+            `;
+            setRow.parentNode.insertBefore(noteRow, setRow.nextSibling);
+
+            // Attach note input listener
+            const noteInput = noteRow.querySelector('.set-note-input');
+            if (noteInput) {
+                noteInput.addEventListener('blur', (e) => {
+                    const setId = e.currentTarget.dataset.setId;
+                    const note = e.currentTarget.value;
+                    this.saveNote(setId, note);
+                });
+            }
+
+        } catch (error) {
+            console.error('Failed to save set. Full error:', error);
+            console.error('Error response:', error.response);
+            setRow.dataset.saving = 'false';
+            alert(`Kunne ikke gemme sæt. Fejl: ${error.message || 'Ukendt fejl'}`);
+        }
+    }
+
+    async deleteSet(setId) {
+        if (!confirm('Er du sikker på at du vil slette dette sæt?')) {
+            return;
+        }
+
+        try {
+            await api.request(`/workout/${this.sessionId}/sets/${setId}`, {
+                method: 'DELETE'
+            });
+
+            // Reload workout data
+            this.workoutData = await api.request(`/workout/${this.sessionId}`);
+            state.set('activeWorkout', this.workoutData);
+
+            // Re-render
+            const contentElement = document.getElementById('app-content');
+            if (contentElement) {
+                contentElement.innerHTML = await this.render();
+                this.setupEventListeners();
+            }
+        } catch (error) {
+            console.error('Failed to delete set:', error);
+            alert('Kunne ikke slette sæt. Prøv igen.');
+        }
+    }
+
+    async saveNote(setId, note) {
+        try {
+            // Find the set in workout data
+            let targetSet = null;
+            let targetExercise = null;
+
+            for (const exercise of this.workoutData.exercises) {
+                const set = exercise.sets?.find(s => s.performedSetId === parseInt(setId));
+                if (set) {
+                    targetSet = set;
+                    targetExercise = exercise;
+                    break;
+                }
+            }
+
+            if (!targetSet || !targetExercise) {
+                console.error('Set not found');
+                return;
+            }
+
+            // Update the set with the note (send all existing data plus updated note)
+            await api.request(`/workout/${this.sessionId}/sets`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    performedExerciseId: targetExercise.performedExerciseId,
+                    setNumber: targetSet.setNumber,
+                    sideOfBody: targetSet.sideOfBody,
+                    weight: targetSet.weight,
+                    reps: targetSet.reps,
+                    durationSeconds: targetSet.durationSeconds,
+                    note: note || null, // Send null if empty string
+                    completed: false
+                })
+            });
+
+            // Reload workout data to stay in sync
+            this.workoutData = await api.request(`/workout/${this.sessionId}`);
+            state.set('activeWorkout', this.workoutData);
+
+        } catch (error) {
+            console.error('Failed to save note:', error);
+            alert('Kunne ikke gemme kommentar. Prøv igen.');
+        }
+    }
+
     closeWorkout() {
         // Clear active workout from state
         state.set('activeWorkout', null);
@@ -499,8 +1399,37 @@ export class WorkoutView {
     }
 
     async completeWorkout() {
-        // TODO: Phase 4 - Show note modal
-        console.log('Complete workout - kommer i Phase 4');
+        try {
+            // Save note if modal is open
+            if (this.showNoteModal) {
+                const noteInput = document.getElementById('workoutNoteInput');
+                if (noteInput) {
+                    this.workoutNote = noteInput.value;
+                }
+            }
+
+            // Call API to complete the workout
+            await api.request(`/workout/${this.sessionId}/complete`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    note: this.workoutNote || null
+                })
+            });
+
+            // Clear active workout from state
+            state.set('activeWorkout', null);
+
+            // Show confirmation toast
+            this.showToast('Træning gemt!');
+
+            // Navigate to home after a brief delay to show toast
+            setTimeout(() => {
+                router.navigate('home');
+            }, 500);
+        } catch (error) {
+            console.error('Failed to complete workout:', error);
+            alert('Kunne ikke gemme træning. Prøv igen.');
+        }
     }
 
     formatDate(date) {
@@ -515,6 +1444,21 @@ export class WorkoutView {
         const hours = String(date.getHours()).padStart(2, '0');
         const minutes = String(date.getMinutes()).padStart(2, '0');
         return `${hours}:${minutes}`;
+    }
+
+    showToast(message) {
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = message;
+
+        // Add to body
+        document.body.appendChild(toast);
+
+        // Remove after animation completes (3 seconds total)
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
     }
 
     destroy() {
