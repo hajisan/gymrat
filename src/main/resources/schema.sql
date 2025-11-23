@@ -23,7 +23,9 @@ CREATE TABLE IF NOT EXISTS exercise (
     name VARCHAR(255) NOT NULL,
     target_muscle_group VARCHAR(255),
     equipment VARCHAR(255),
-    CONSTRAINT uq_exercise_name UNIQUE (name)
+    exercise_type VARCHAR(20) NOT NULL DEFAULT 'REP_BASED',
+    CONSTRAINT uq_exercise_name UNIQUE (name),
+    INDEX idx_exercise_type (exercise_type)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =========================================
