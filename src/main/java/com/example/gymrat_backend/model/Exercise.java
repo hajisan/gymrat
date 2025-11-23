@@ -28,6 +28,10 @@ public class Exercise {
 
     private String equipment;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "exercise_type", nullable = false, length = 20)
+    private ExerciseType exerciseType = ExerciseType.REP_BASED; // Default til reps
+
     // Konstruktør - uden args og med
 
     public Exercise() {
@@ -38,6 +42,15 @@ public class Exercise {
         this.name = name;
         this.targetMuscleGroup = targetMuscleGroup;
         this.equipment = equipment;
+        this.exerciseType = ExerciseType.REP_BASED; // Default
+    }
+
+    public Exercise(Long exerciseId, String name, String targetMuscleGroup, String equipment, ExerciseType exerciseType) {
+        this.exerciseId = exerciseId;
+        this.name = name;
+        this.targetMuscleGroup = targetMuscleGroup;
+        this.equipment = equipment;
+        this.exerciseType = exerciseType;
     }
 
     // Getter og Setter
@@ -68,6 +81,13 @@ public class Exercise {
     }
     public void setEquipment(String equipment) {
         this.equipment = equipment;
+    }
+
+    public ExerciseType getExerciseType() {
+        return exerciseType;
+    }
+    public void setExerciseType(ExerciseType exerciseType) {
+        this.exerciseType = exerciseType;
     }
 
     // toString

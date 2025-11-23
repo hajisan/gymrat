@@ -5,6 +5,8 @@ Response DTO for en øvelse i aktiv træning
 Inkluderer "last time" data for reference
  */
 
+import com.example.gymrat_backend.model.ExerciseType;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +16,8 @@ public class WorkoutExerciseResponse {
     private Long exerciseId;
     private String exerciseName;
     private String targetMuscleGroup;
+    private String equipment;
+    private ExerciseType exerciseType;
     private Integer orderNumber;
     private List<WorkoutSetResponse> sets = new ArrayList<>();
     private LastPerformedData lastPerformed; // Reference til sidste gang
@@ -24,12 +28,14 @@ public class WorkoutExerciseResponse {
     }
 
     public WorkoutExerciseResponse(Long performedExerciseId, Long exerciseId, String exerciseName,
-                                   String targetMuscleGroup, Integer orderNumber,
-                                   List<WorkoutSetResponse> sets, LastPerformedData lastPerformed) {
+                                   String targetMuscleGroup, String equipment, ExerciseType exerciseType,
+                                   Integer orderNumber, List<WorkoutSetResponse> sets, LastPerformedData lastPerformed) {
         this.performedExerciseId = performedExerciseId;
         this.exerciseId = exerciseId;
         this.exerciseName = exerciseName;
         this.targetMuscleGroup = targetMuscleGroup;
+        this.equipment = equipment;
+        this.exerciseType = exerciseType;
         this.orderNumber = orderNumber;
         this.sets = sets;
         this.lastPerformed = lastPerformed;
@@ -63,6 +69,20 @@ public class WorkoutExerciseResponse {
     }
     public void setTargetMuscleGroup(String targetMuscleGroup) {
         this.targetMuscleGroup = targetMuscleGroup;
+    }
+
+    public String getEquipment() {
+        return equipment;
+    }
+    public void setEquipment(String equipment) {
+        this.equipment = equipment;
+    }
+
+    public ExerciseType getExerciseType() {
+        return exerciseType;
+    }
+    public void setExerciseType(ExerciseType exerciseType) {
+        this.exerciseType = exerciseType;
     }
 
     public Integer getOrderNumber() {

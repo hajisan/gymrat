@@ -19,7 +19,12 @@ INSERT IGNORE INTO exercise (
       ('Calf raise', 'Læg', 'Leg press'),
       ('Side step launch', 'Lår, læg, ankel, mobilitet', 'Blå skum til ankel + barbell'),
       ('Hip raises', 'Hofte, core, mobilitet', 'Yogamåtte'),
-      ('Overkrops twist med bånd', 'Core, mavemuskler, arme, håndled', 'Lilla elastikbånd');
+      ('Overkrops twist med bånd', 'Core, mavemuskler, arme, håndled', 'Lilla elastikbånd'),
+      ('Planke', 'Core', 'Yogamåtte');
+
+-- Update exercise types for existing exercises
+UPDATE exercise SET exercise_type = 'REP_BASED' WHERE exercise_type IS NULL OR exercise_type = '';
+UPDATE exercise SET exercise_type = 'DURATION_BASED' WHERE name = 'Planke';
 
 -- -----------------------------------------
 -- Table: training_session

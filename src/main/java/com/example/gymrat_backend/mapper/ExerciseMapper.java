@@ -14,13 +14,14 @@ public class ExerciseMapper {
         if (exercise == null) {
             return null;
         }
-        
+
         ExerciseDTO dto = new ExerciseDTO();
         dto.setExerciseId(exercise.getExerciseId());
         dto.setName(exercise.getName());
         dto.setTargetMuscleGroup(exercise.getTargetMuscleGroup());
         dto.setEquipment(exercise.getEquipment());
-        
+        dto.setExerciseType(exercise.getExerciseType());
+
         return dto;
     }
     
@@ -31,13 +32,14 @@ public class ExerciseMapper {
         if (dto == null) {
             return null;
         }
-        
+
         Exercise exercise = new Exercise();
         exercise.setExerciseId(dto.getExerciseId());
         exercise.setName(dto.getName());
         exercise.setTargetMuscleGroup(dto.getTargetMuscleGroup());
         exercise.setEquipment(dto.getEquipment());
-        
+        exercise.setExerciseType(dto.getExerciseType());
+
         return exercise;
     }
     
@@ -48,7 +50,7 @@ public class ExerciseMapper {
         if (dto == null || exercise == null) {
             return;
         }
-        
+
         if (dto.getName() != null) {
             exercise.setName(dto.getName());
         }
@@ -57,6 +59,9 @@ public class ExerciseMapper {
         }
         if (dto.getEquipment() != null) {
             exercise.setEquipment(dto.getEquipment());
+        }
+        if (dto.getExerciseType() != null) {
+            exercise.setExerciseType(dto.getExerciseType());
         }
     }
 }
