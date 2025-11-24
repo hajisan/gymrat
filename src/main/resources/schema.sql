@@ -34,6 +34,8 @@ CREATE TABLE IF NOT EXISTS exercise (
 CREATE TABLE IF NOT EXISTS training_session (
     training_session_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     created_at DATE NOT NULL,
+    started_at DATETIME,
+    completed_at DATETIME,
     note VARCHAR(255),
     INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

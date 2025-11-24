@@ -31,9 +31,11 @@ UPDATE exercise SET exercise_type = 'DURATION_BASED' WHERE name = 'Planke';
 -- -----------------------------------------
 INSERT IGNORE INTO training_session (
     created_at,
+    started_at,
+    completed_at,
     note
 ) VALUES
-    ('2025-10-25', 'god session, effektiv træning, nået mål');
+    ('2025-10-25', '2025-10-25 10:00:00', '2025-10-25 11:30:00', 'god session, effektiv træning, nået mål');
 
 -- -----------------------------------------
 -- Table: performed_exercise

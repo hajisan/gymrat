@@ -783,29 +783,31 @@ export class WorkoutView {
     }
 
     async deleteExercise(performedExerciseId) {
-        if (!confirm('Er du sikker på at du vil slette denne øvelse?')) {
-            return;
-        }
+        this.showConfirmModal(
+            'Slet øvelse?',
+            'Er du sikker på at du vil slette denne øvelse?',
+            async () => {
+                try {
+                    await api.request(`/workout/${this.sessionId}/exercises/${performedExerciseId}`, {
+                        method: 'DELETE'
+                    });
 
-        try {
-            await api.request(`/workout/${this.sessionId}/exercises/${performedExerciseId}`, {
-                method: 'DELETE'
-            });
+                    // Reload workout data
+                    this.workoutData = await api.request(`/workout/${this.sessionId}`);
+                    state.set('activeWorkout', this.workoutData);
 
-            // Reload workout data
-            this.workoutData = await api.request(`/workout/${this.sessionId}`);
-            state.set('activeWorkout', this.workoutData);
-
-            // Re-render
-            const contentElement = document.getElementById('app-content');
-            if (contentElement) {
-                contentElement.innerHTML = await this.render();
-                this.setupEventListeners();
+                    // Re-render
+                    const contentElement = document.getElementById('app-content');
+                    if (contentElement) {
+                        contentElement.innerHTML = await this.render();
+                        this.setupEventListeners();
+                    }
+                } catch (error) {
+                    console.error('Failed to delete exercise:', error);
+                    alert('Kunne ikke slette øvelse. Prøv igen.');
+                }
             }
-        } catch (error) {
-            console.error('Failed to delete exercise:', error);
-            alert('Kunne ikke slette øvelse. Prøv igen.');
-        }
+        );
     }
 
     async addSet(performedExerciseId) {
@@ -1320,29 +1322,31 @@ export class WorkoutView {
     }
 
     async deleteSet(setId) {
-        if (!confirm('Er du sikker på at du vil slette dette sæt?')) {
-            return;
-        }
+        this.showConfirmModal(
+            'Slet sæt?',
+            'Er du sikker på at du vil slette dette sæt?',
+            async () => {
+                try {
+                    await api.request(`/workout/${this.sessionId}/sets/${setId}`, {
+                        method: 'DELETE'
+                    });
 
-        try {
-            await api.request(`/workout/${this.sessionId}/sets/${setId}`, {
-                method: 'DELETE'
-            });
+                    // Reload workout data
+                    this.workoutData = await api.request(`/workout/${this.sessionId}`);
+                    state.set('activeWorkout', this.workoutData);
 
-            // Reload workout data
-            this.workoutData = await api.request(`/workout/${this.sessionId}`);
-            state.set('activeWorkout', this.workoutData);
-
-            // Re-render
-            const contentElement = document.getElementById('app-content');
-            if (contentElement) {
-                contentElement.innerHTML = await this.render();
-                this.setupEventListeners();
+                    // Re-render
+                    const contentElement = document.getElementById('app-content');
+                    if (contentElement) {
+                        contentElement.innerHTML = await this.render();
+                        this.setupEventListeners();
+                    }
+                } catch (error) {
+                    console.error('Failed to delete set:', error);
+                    alert('Kunne ikke slette sæt. Prøv igen.');
+                }
             }
-        } catch (error) {
-            console.error('Failed to delete set:', error);
-            alert('Kunne ikke slette sæt. Prøv igen.');
-        }
+        );
     }
 
     async saveNote(setId, note) {
@@ -1459,6 +1463,61 @@ export class WorkoutView {
         setTimeout(() => {
             toast.remove();
         }, 3000);
+    }
+
+    showConfirmModal(title, message, onConfirm) {
+        // Create modal overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'confirm-overlay';
+
+        // Create modal dialog
+        const dialog = document.createElement('div');
+        dialog.className = 'confirm-dialog';
+
+        dialog.innerHTML = `
+            <h2 class="confirm-title">${title}</h2>
+            <p class="confirm-message">${message}</p>
+            <div class="confirm-actions">
+                <button type="button" class="confirm-btn confirm-btn-cancel" id="confirmCancel">Annuller</button>
+                <button type="button" class="confirm-btn confirm-btn-confirm" id="confirmDelete">Slet</button>
+            </div>
+        `;
+
+        overlay.appendChild(dialog);
+        document.body.appendChild(overlay);
+
+        // Prevent dialog clicks from closing overlay
+        dialog.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        // Handle cancel
+        const cancelBtn = document.getElementById('confirmCancel');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                overlay.remove();
+            });
+        }
+
+        // Handle confirm
+        const confirmBtn = document.getElementById('confirmDelete');
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                overlay.remove();
+                onConfirm();
+            });
+        }
+
+        // Close on overlay click (but not dialog click)
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.remove();
+            }
+        });
     }
 
     destroy() {

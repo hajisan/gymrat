@@ -6,11 +6,14 @@ Indeholder kun grundlæggende information uden nested data for performance
  */
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class TrainingSessionSummaryResponse {
 
     private Long trainingSessionId;
     private LocalDate createdAt;
+    private LocalDateTime startedAt;
+    private LocalDateTime completedAt;
     private String note;
     private Integer exerciseCount;
     // Tilføj evt andre brugbare information, hvis nødvendigt
@@ -20,9 +23,11 @@ public class TrainingSessionSummaryResponse {
     public TrainingSessionSummaryResponse() {
     }
 
-    public TrainingSessionSummaryResponse(Long trainingSessionId, LocalDate createdAt, String note, Integer exerciseCount) {
+    public TrainingSessionSummaryResponse(Long trainingSessionId, LocalDate createdAt, LocalDateTime startedAt, LocalDateTime completedAt, String note, Integer exerciseCount) {
         this.trainingSessionId = trainingSessionId;
         this.createdAt = createdAt;
+        this.startedAt = startedAt;
+        this.completedAt = completedAt;
         this.note = note;
         this.exerciseCount = exerciseCount;
     }
@@ -41,6 +46,20 @@ public class TrainingSessionSummaryResponse {
     }
     public void setCreatedAt(LocalDate createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getStartedAt() {
+        return startedAt;
+    }
+    public void setStartedAt(LocalDateTime startedAt) {
+        this.startedAt = startedAt;
+    }
+
+    public LocalDateTime getCompletedAt() {
+        return completedAt;
+    }
+    public void setCompletedAt(LocalDateTime completedAt) {
+        this.completedAt = completedAt;
     }
 
     public String getNote() {
@@ -64,6 +83,8 @@ public class TrainingSessionSummaryResponse {
         return "TrainingSessionSummaryResponse{" +
                 "trainingSessionId=" + trainingSessionId +
                 ", createdAt=" + createdAt +
+                ", startedAt=" + startedAt +
+                ", completedAt=" + completedAt +
                 ", note='" + note + '\'' +
                 ", exerciseCount=" + exerciseCount +
                 '}';

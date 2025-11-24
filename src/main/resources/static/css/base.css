@@ -130,6 +130,86 @@ select {
 }
 
 /* ============================================
+   Confirmation Modal
+   ============================================ */
+
+.confirm-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    padding: var(--space-lg);
+    opacity: 1;
+}
+
+.confirm-dialog {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    max-width: 340px;
+    width: 100%;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    transform: scale(1);
+}
+
+.confirm-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: var(--space-sm);
+}
+
+.confirm-message {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: var(--space-lg);
+}
+
+.confirm-actions {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.confirm-btn {
+    flex: 1;
+    min-height: 48px;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.confirm-btn-cancel {
+    background: var(--bg);
+    color: var(--ink);
+    border: 1px solid var(--stroke);
+}
+
+.confirm-btn-cancel:active {
+    opacity: 0.6;
+}
+
+.confirm-btn-confirm {
+    background: #dc3545;
+    color: white;
+}
+
+.confirm-btn-confirm:active {
+    background: #c82333;
+    transform: scale(0.98);
+}
+
+/* ============================================
    Dark Mode Support
    ============================================ */
 

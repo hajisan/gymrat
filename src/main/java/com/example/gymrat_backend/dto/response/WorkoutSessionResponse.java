@@ -13,6 +13,8 @@ public class WorkoutSessionResponse {
 
     private Long trainingSessionId;
     private LocalDateTime startedAt;
+    private LocalDateTime completedAt;
+    private String note;
     private List<WorkoutExerciseResponse> exercises = new ArrayList<>();
 
     // Konstruktør - uden args og med
@@ -20,9 +22,11 @@ public class WorkoutSessionResponse {
     public WorkoutSessionResponse() {
     }
 
-    public WorkoutSessionResponse(Long trainingSessionId, LocalDateTime startedAt, List<WorkoutExerciseResponse> exercises) {
+    public WorkoutSessionResponse(Long trainingSessionId, LocalDateTime startedAt, LocalDateTime completedAt, String note, List<WorkoutExerciseResponse> exercises) {
         this.trainingSessionId = trainingSessionId;
         this.startedAt = startedAt;
+        this.completedAt = completedAt;
+        this.note = note;
         this.exercises = exercises;
     }
 
@@ -42,6 +46,20 @@ public class WorkoutSessionResponse {
         this.startedAt = startedAt;
     }
 
+    public LocalDateTime getCompletedAt() {
+        return completedAt;
+    }
+    public void setCompletedAt(LocalDateTime completedAt) {
+        this.completedAt = completedAt;
+    }
+
+    public String getNote() {
+        return note;
+    }
+    public void setNote(String note) {
+        this.note = note;
+    }
+
     public List<WorkoutExerciseResponse> getExercises() {
         return exercises;
     }
@@ -54,6 +72,8 @@ public class WorkoutSessionResponse {
         return "WorkoutSessionResponse{" +
                 "trainingSessionId=" + trainingSessionId +
                 ", startedAt=" + startedAt +
+                ", completedAt=" + completedAt +
+                ", note='" + note + '\'' +
                 ", exercises=" + exercises +
                 '}';
     }

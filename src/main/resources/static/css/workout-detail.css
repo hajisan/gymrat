@@ -1,0 +1,234 @@
+/* ============================================
+   WORKOUT DETAIL VIEW
+   Read-only view of completed workouts
+   ============================================ */
+
+.workout-detail-view {
+    min-height: 100vh;
+    background: var(--bg);
+    padding-bottom: calc(84px + var(--safe-bottom));
+}
+
+/* ============================================
+   Header Section
+   ============================================ */
+
+.workout-detail-header {
+    background: var(--card);
+    border-bottom: 1px solid var(--stroke);
+    padding: var(--space-md);
+}
+
+.back-button {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    background: transparent;
+    border: none;
+    color: var(--ink);
+    font-size: 16px;
+    font-weight: 500;
+    padding: var(--space-sm) 0;
+    cursor: pointer;
+    margin-bottom: var(--space-md);
+}
+
+.back-button:active {
+    opacity: 0.6;
+}
+
+.back-button svg {
+    flex-shrink: 0;
+}
+
+.workout-detail-title h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: var(--space-xs);
+}
+
+.workout-detail-time {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    margin-bottom: 4px;
+}
+
+.workout-detail-duration {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+}
+
+.workout-detail-note {
+    margin-top: var(--space-md);
+    padding: var(--space-md);
+    background: var(--bg);
+    border-radius: var(--radius-md);
+}
+
+.note-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    margin-bottom: var(--space-xs);
+}
+
+.workout-detail-note p {
+    font-size: 15px;
+    color: var(--ink);
+    line-height: 1.5;
+}
+
+/* ============================================
+   Exercise Cards
+   ============================================ */
+
+.workout-detail-exercises {
+    padding: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.exercise-detail-card {
+    background: var(--card);
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+    box-shadow: var(--shadow);
+}
+
+.exercise-detail-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+}
+
+.exercise-detail-equipment {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: var(--space-md);
+}
+
+/* ============================================
+   Sets
+   ============================================ */
+
+.exercise-detail-sets {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.set-detail-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: var(--space-sm);
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+}
+
+.set-detail-number {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.set-detail-performance {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.set-detail-note {
+    font-size: 13px;
+    color: var(--muted);
+    font-style: italic;
+    margin-top: 4px;
+}
+
+/* ============================================
+   Summary Section
+   ============================================ */
+
+.workout-detail-summary {
+    padding: var(--space-md);
+    background: var(--card);
+    border-top: 1px solid var(--stroke);
+}
+
+.workout-detail-summary h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: var(--space-md);
+}
+
+.summary-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-md);
+}
+
+.summary-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-md);
+    background: var(--bg);
+    border-radius: var(--radius-md);
+}
+
+.summary-stat-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.summary-stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+/* ============================================
+   Delete Button
+   ============================================ */
+
+.btn-delete {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    width: 100%;
+    min-height: 48px;
+    margin-top: var(--space-lg);
+    padding: var(--space-md);
+    background: transparent;
+    border: 2px solid #dc3545;
+    border-radius: var(--radius-md);
+    color: #dc3545;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-delete:active {
+    background: #dc3545;
+    color: white;
+    transform: scale(0.98);
+}
+
+.btn-delete svg {
+    flex-shrink: 0;
+}
