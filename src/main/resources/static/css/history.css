@@ -1,0 +1,129 @@
+/* ============================================
+   HISTORY VIEW
+   Oversigt over tidligere træninger
+   ============================================ */
+
+.history-view {
+    min-height: 100vh;
+    background: var(--bg);
+    padding-bottom: calc(84px + var(--safe-bottom));
+}
+
+.history-content {
+    padding: var(--space-md);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* ============================================
+   Workout List
+   ============================================ */
+
+.workout-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.workout-card {
+    background: var(--card);
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.workout-card:active {
+    transform: scale(0.98);
+    background: var(--bg);
+}
+
+.workout-card-header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: var(--space-sm);
+}
+
+.workout-card-date {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.workout-card-time {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+}
+
+.workout-card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: var(--space-sm);
+}
+
+.workout-card-duration {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+}
+
+.workout-card-exercises {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+}
+
+.workout-card-note {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-xs);
+    padding: var(--space-sm);
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    color: var(--muted);
+    font-style: italic;
+}
+
+.workout-card-note svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.workout-card-note span {
+    flex: 1;
+    line-height: 1.4;
+}
+
+/* ============================================
+   Empty State
+   ============================================ */
+
+.history-view .empty-state {
+    padding: var(--space-xl);
+    text-align: center;
+    color: var(--muted);
+    margin-top: var(--space-xl);
+}
+
+.history-view .empty-state .placeholder__icon {
+    font-size: 64px;
+    margin-bottom: var(--space-md);
+}
+
+.history-view .empty-state h2 {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: var(--space-sm);
+}
+
+.history-view .empty-state p {
+    font-size: 16px;
+    color: var(--muted);
+}
