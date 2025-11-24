@@ -5,6 +5,7 @@
 
 import { HomeView } from './views/home.js';
 import { WorkoutView } from './views/workout.js';
+import { WorkoutDetailView } from './views/workout-detail.js';
 import { HistoryView } from './views/history.js';
 import { ExercisesView } from './views/exercises.js';
 
@@ -46,23 +47,36 @@ class Router {
         // Get current route from URL
         const path = window.location.pathname;
         let route = 'home';
+        let ViewClass = null;
 
         if (path !== '/') {
-            route = path.substring(1); // Remove leading slash
+            const pathSegments = path.substring(1).split('/');
+            route = pathSegments[0];
+
+            // Handle dynamic routes like /workout/:id
+            if (route === 'workout' && pathSegments.length === 2 && pathSegments[1]) {
+                ViewClass = WorkoutDetailView;
+            }
         }
 
-        // Check if route exists
-        if (!this.routes[route]) {
-            console.warn(`⚠️ Route '${route}' not found, redirecting to home`);
-            route = 'home';
+        // If not a dynamic route, check if route exists in routes object
+        if (!ViewClass) {
+            if (!this.routes[route]) {
+                console.warn(`⚠️ Route '${route}' not found, redirecting to home`);
+                route = 'home';
+            }
+            ViewClass = this.routes[route];
         }
 
         // Render view
-        this.renderView(route);
+        this.renderView(route, ViewClass);
     }
 
-    async renderView(route) {
-        const ViewClass = this.routes[route];
+    async renderView(route, ViewClass) {
+        // If ViewClass not provided, get it from routes
+        if (!ViewClass) {
+            ViewClass = this.routes[route];
+        }
 
         if (!ViewClass) {
             console.error(`❌ View for route '${route}' not found`);
