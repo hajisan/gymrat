@@ -3,6 +3,7 @@ package com.example.gymrat_backend.service;
 import com.example.gymrat_backend.dto.request.AddExerciseToWorkoutRequest;
 import com.example.gymrat_backend.dto.request.CompleteWorkoutRequest;
 import com.example.gymrat_backend.dto.request.LogSetRequest;
+import com.example.gymrat_backend.dto.response.TrainingSessionSummaryResponse;
 import com.example.gymrat_backend.dto.response.WorkoutExerciseResponse;
 import com.example.gymrat_backend.dto.response.WorkoutSessionResponse;
 import com.example.gymrat_backend.dto.response.WorkoutSetResponse;
@@ -41,15 +42,18 @@ public class WorkoutServiceImpl implements WorkoutService {
 
     @Override
     public WorkoutSessionResponse startWorkout() {
-        // Opret ny træningssession med dagens dato
+        // Opret ny træningssession med dagens dato og start tidspunkt
         TrainingSession session = new TrainingSession();
         session.setCreatedAt(LocalDate.now());
+        session.setStartedAt(LocalDateTime.now());
         session = trainingSessionRepository.save(session);
 
         // Return response med tom exercise liste
         WorkoutSessionResponse response = new WorkoutSessionResponse();
         response.setTrainingSessionId(session.getTrainingSessionId());
-        response.setStartedAt(LocalDateTime.now());
+        response.setStartedAt(session.getStartedAt());
+        response.setCompletedAt(session.getCompletedAt());
+        response.setNote(session.getNote());
         response.setExercises(new ArrayList<>());
 
         return response;
@@ -63,7 +67,9 @@ public class WorkoutServiceImpl implements WorkoutService {
 
         WorkoutSessionResponse response = new WorkoutSessionResponse();
         response.setTrainingSessionId(session.getTrainingSessionId());
-        response.setStartedAt(session.getCreatedAt().atStartOfDay());
+        response.setStartedAt(session.getStartedAt());
+        response.setCompletedAt(session.getCompletedAt());
+        response.setNote(session.getNote());
 
         // Map performed exercises til response
         List<WorkoutExerciseResponse> exerciseResponses = session.getExercises().stream()
@@ -192,8 +198,9 @@ public class WorkoutServiceImpl implements WorkoutService {
         TrainingSession session = trainingSessionRepository.findById(sessionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Træningssession", "id", sessionId));
 
-        // Tilføj note
+        // Tilføj note og completion timestamp
         session.setNote(request.getNote());
+        session.setCompletedAt(LocalDateTime.now());
         session = trainingSessionRepository.save(session);
 
         // Return final session response
@@ -295,5 +302,35 @@ public class WorkoutServiceImpl implements WorkoutService {
         response.setCompleted(completed != null ? completed : false);
         response.setNote(set.getNote());
         return response;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TrainingSessionSummaryResponse> getAllWorkouts() {
+        // Hent kun completed sessions sorteret efter completed_at descending (nyeste først)
+        List<TrainingSession> sessions = trainingSessionRepository.findByCompletedAtIsNotNullOrderByCompletedAtDesc();
+
+        // Map til summary response
+        return sessions.stream()
+                .map(session -> {
+                    TrainingSessionSummaryResponse summary = new TrainingSessionSummaryResponse();
+                    summary.setTrainingSessionId(session.getTrainingSessionId());
+                    summary.setCreatedAt(session.getCreatedAt());
+                    summary.setStartedAt(session.getStartedAt());
+                    summary.setCompletedAt(session.getCompletedAt());
+                    summary.setNote(session.getNote());
+                    summary.setExerciseCount(session.getExercises() != null ? session.getExercises().size() : 0);
+                    return summary;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void deleteWorkout(Long sessionId) {
+        TrainingSession session = trainingSessionRepository.findById(sessionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Træningssession", "id", sessionId));
+
+        trainingSessionRepository.delete(session);
     }
 }
