@@ -1,0 +1,311 @@
+/* ============================================
+   EXERCISES VIEW
+   List and manage exercises
+   ============================================ */
+
+.exercises-view {
+    min-height: 100vh;
+    background: var(--bg);
+    padding-bottom: calc(84px + var(--safe-bottom));
+}
+
+/* ============================================
+   Header Section
+   ============================================ */
+
+.exercises-header {
+    background: var(--card);
+    border-bottom: 1px solid var(--stroke);
+    padding: var(--space-lg) var(--space-md);
+    text-align: center;
+}
+
+.exercises-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: var(--space-xs);
+}
+
+.exercises-subtitle {
+    font-size: 15px;
+    color: var(--muted);
+}
+
+/* ============================================
+   Exercises List
+   ============================================ */
+
+.exercises-list {
+    padding: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.exercise-card {
+    background: var(--card);
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.exercise-card:active {
+    transform: scale(0.98);
+    opacity: 0.8;
+}
+
+.exercise-card-main {
+    flex: 1;
+}
+
+.exercise-card-name {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+}
+
+.exercise-card-equipment,
+.exercise-card-muscle {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 2px;
+}
+
+.exercise-card-muscle {
+    margin-bottom: 0;
+}
+
+.exercise-card-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.exercise-type-badge {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    background: var(--bg);
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+}
+
+.exercise-card-meta svg {
+    color: var(--muted);
+}
+
+/* ============================================
+   Empty State
+   ============================================ */
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-xl);
+    text-align: center;
+    min-height: 50vh;
+}
+
+.empty-state-icon {
+    font-size: 64px;
+    margin-bottom: var(--space-md);
+}
+
+.empty-state h2 {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: var(--space-sm);
+}
+
+.empty-state p {
+    font-size: 16px;
+    color: var(--muted);
+}
+
+/* ============================================
+   Create Button
+   ============================================ */
+
+.exercises-footer {
+    padding: var(--space-md);
+    background: var(--bg);
+}
+
+.btn-create-exercise {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    width: 100%;
+    min-height: 52px;
+    padding: var(--space-md);
+    background: var(--cta);
+    color: var(--cta-ink);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-create-exercise:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+}
+
+.btn-create-exercise svg {
+    flex-shrink: 0;
+}
+
+/* ============================================
+   EXERCISE DETAIL VIEW
+   Create or edit an exercise
+   ============================================ */
+
+.exercise-detail-view {
+    min-height: 100vh;
+    background: var(--bg);
+    padding-bottom: calc(84px + var(--safe-bottom));
+}
+
+/* ============================================
+   Detail Header
+   ============================================ */
+
+.exercise-detail-header {
+    background: var(--card);
+    border-bottom: 1px solid var(--stroke);
+    padding: var(--space-md);
+    position: relative;
+}
+
+.exercise-detail-header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.btn-delete-header {
+    position: absolute;
+    top: var(--space-md);
+    right: var(--space-md);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-delete-header:active {
+    opacity: 0.6;
+    transform: scale(0.95);
+}
+
+/* ============================================
+   Exercise Form
+   ============================================ */
+
+.exercise-form {
+    padding: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.form-group label {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: var(--space-md);
+    background: var(--card);
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius-md);
+    font-size: 16px;
+    color: var(--ink);
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--cta);
+}
+
+.form-group input::placeholder {
+    color: var(--muted);
+}
+
+.type-buttons {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.type-btn {
+    flex: 1;
+    min-height: 48px;
+    padding: var(--space-sm) var(--space-md);
+    background: var(--card);
+    border: 2px solid var(--stroke);
+    border-radius: var(--radius-md);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.type-btn:active {
+    transform: scale(0.98);
+}
+
+.type-btn-active {
+    background: var(--cta);
+    color: var(--cta-ink);
+    border-color: var(--cta);
+}
+
+.btn-save {
+    width: 100%;
+    min-height: 52px;
+    padding: var(--space-md);
+    background: var(--cta);
+    color: var(--cta-ink);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-save:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+}
