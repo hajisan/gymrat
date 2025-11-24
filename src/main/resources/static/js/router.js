@@ -8,6 +8,7 @@ import { WorkoutView } from './views/workout.js';
 import { WorkoutDetailView } from './views/workout-detail.js';
 import { HistoryView } from './views/history.js';
 import { ExercisesView } from './views/exercises.js';
+import { ExerciseDetailView } from './views/exercise-detail.js';
 
 class Router {
     constructor() {
@@ -56,6 +57,11 @@ class Router {
             // Handle dynamic routes like /workout/:id
             if (route === 'workout' && pathSegments.length === 2 && pathSegments[1]) {
                 ViewClass = WorkoutDetailView;
+            }
+
+            // Handle dynamic routes like /exercises/:id or /exercises/new
+            if (route === 'exercises' && pathSegments.length === 2 && pathSegments[1]) {
+                ViewClass = ExerciseDetailView;
             }
         }
 
