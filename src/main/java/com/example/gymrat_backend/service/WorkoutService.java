@@ -3,9 +3,12 @@ package com.example.gymrat_backend.service;
 import com.example.gymrat_backend.dto.request.AddExerciseToWorkoutRequest;
 import com.example.gymrat_backend.dto.request.CompleteWorkoutRequest;
 import com.example.gymrat_backend.dto.request.LogSetRequest;
+import com.example.gymrat_backend.dto.response.TrainingSessionSummaryResponse;
 import com.example.gymrat_backend.dto.response.WorkoutExerciseResponse;
 import com.example.gymrat_backend.dto.response.WorkoutSessionResponse;
 import com.example.gymrat_backend.dto.response.WorkoutSetResponse;
+
+import java.util.List;
 
 public interface WorkoutService {
 
@@ -48,4 +51,14 @@ public interface WorkoutService {
      * Hent "last performed" data for en øvelse
      */
     WorkoutExerciseResponse.LastPerformedData getLastPerformedData(Long exerciseId);
+
+    /**
+     * Hent alle træningssessioner (historik)
+     */
+    List<TrainingSessionSummaryResponse> getAllWorkouts();
+
+    /**
+     * Slet en træningssession
+     */
+    void deleteWorkout(Long sessionId);
 }
