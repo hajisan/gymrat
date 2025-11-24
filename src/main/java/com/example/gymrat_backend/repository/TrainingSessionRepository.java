@@ -21,4 +21,10 @@ public interface TrainingSessionRepository extends JpaRepository<TrainingSession
     // Find training sessions efter en dato (sorteret)
     List<TrainingSession> findByCreatedAtAfterOrderByCreatedAtDesc(LocalDate date);
 
+    // Find all training sessions sorteret descending (nyeste først)
+    List<TrainingSession> findAllByOrderByTrainingSessionIdDesc();
+
+    // Find all completed training sessions sorteret descending (nyeste først)
+    List<TrainingSession> findByCompletedAtIsNotNullOrderByCompletedAtDesc();
+
 }
