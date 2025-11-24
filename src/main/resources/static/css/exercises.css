@@ -43,7 +43,7 @@
     gap: var(--space-sm);
 }
 
-.exercise-card {
+.exercise-list-card {
     background: var(--card);
     border: 1px solid var(--stroke);
     border-radius: var(--radius-md);
@@ -55,7 +55,7 @@
     transition: all 0.2s ease;
 }
 
-.exercise-card:active {
+.exercise-list-card:active {
     transform: scale(0.98);
     opacity: 0.8;
 }

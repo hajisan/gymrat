@@ -67,7 +67,7 @@ export class ExercisesView {
         const typeLabel = exercise.exerciseType === 'DURATION_BASED' ? 'Tid' : 'Reps';
 
         return `
-            <div class="exercise-card" data-exercise-id="${exercise.exerciseId}">
+            <div class="exercise-list-card" data-exercise-id="${exercise.exerciseId}">
                 <div class="exercise-card-main">
                     <h3 class="exercise-card-name">${exercise.name}</h3>
                     ${exercise.equipment ? `<p class="exercise-card-equipment">${exercise.equipment}</p>` : ''}
@@ -85,7 +85,7 @@ export class ExercisesView {
 
     mounted() {
         // Add click listeners to exercise cards
-        document.querySelectorAll('.exercise-card').forEach(card => {
+        document.querySelectorAll('.exercise-list-card').forEach(card => {
             card.addEventListener('click', () => {
                 const exerciseId = card.dataset.exerciseId;
                 router.navigate(`exercises/${exerciseId}`);
