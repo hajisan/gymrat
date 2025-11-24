@@ -3,6 +3,7 @@ package com.example.gymrat_backend.controller;
 import com.example.gymrat_backend.dto.request.AddExerciseToWorkoutRequest;
 import com.example.gymrat_backend.dto.request.CompleteWorkoutRequest;
 import com.example.gymrat_backend.dto.request.LogSetRequest;
+import com.example.gymrat_backend.dto.response.TrainingSessionSummaryResponse;
 import com.example.gymrat_backend.dto.response.WorkoutExerciseResponse;
 import com.example.gymrat_backend.dto.response.WorkoutSessionResponse;
 import com.example.gymrat_backend.dto.response.WorkoutSetResponse;
@@ -11,6 +12,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/workout")
@@ -103,5 +106,23 @@ public class WorkoutController {
             @PathVariable Long exerciseId) {
         WorkoutExerciseResponse.LastPerformedData data = workoutService.getLastPerformedData(exerciseId);
         return ResponseEntity.ok(data);
+    }
+
+    /**
+     * GET /api/workout/history - Hent alle træningssessioner
+     */
+    @GetMapping("/history")
+    public ResponseEntity<List<TrainingSessionSummaryResponse>> getWorkoutHistory() {
+        List<TrainingSessionSummaryResponse> workouts = workoutService.getAllWorkouts();
+        return ResponseEntity.ok(workouts);
+    }
+
+    /**
+     * DELETE /api/workout/{sessionId} - Slet en træningssession
+     */
+    @DeleteMapping("/{sessionId}")
+    public ResponseEntity<Void> deleteWorkout(@PathVariable Long sessionId) {
+        workoutService.deleteWorkout(sessionId);
+        return ResponseEntity.noContent().build();
     }
 }
