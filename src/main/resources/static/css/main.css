@@ -12,3 +12,5 @@
 /* View-specific styles */
 @import url('home.css');
 @import url('workout.css');
+@import url('workout-detail.css');
+@import url('history.css');
