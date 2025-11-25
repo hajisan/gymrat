@@ -9,12 +9,14 @@ import { WorkoutDetailView } from './views/workout-detail.js';
 import { HistoryView } from './views/history.js';
 import { ExercisesView } from './views/exercises.js';
 import { ExerciseDetailView } from './views/exercise-detail.js';
+import { StatsView } from './views/stats.js';
 
 class Router {
     constructor() {
         this.routes = {
             'home': HomeView,
             'workout': WorkoutView,
+            'stats': StatsView,
             'history': HistoryView,
             'exercises': ExercisesView
         };
@@ -131,6 +133,7 @@ class Router {
         const routeToTab = {
             'home': 'home',
             'workout': 'workout',
+            'stats': 'stats',
             'history': 'history',
             'exercises': 'exercises'
         };

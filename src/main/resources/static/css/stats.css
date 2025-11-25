@@ -1,0 +1,201 @@
+/* ============================================
+   STATS VIEW
+   Statistics and progress tracking
+   ============================================ */
+
+.stats-view {
+    min-height: 100vh;
+    background: var(--bg);
+    padding-bottom: calc(84px + var(--safe-bottom));
+}
+
+/* ============================================
+   Header Section
+   ============================================ */
+
+.stats-header {
+    background: var(--card);
+    border-bottom: 1px solid var(--stroke);
+    padding: var(--space-lg) var(--space-md);
+    text-align: center;
+}
+
+.stats-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+/* ============================================
+   Overview Stats Cards
+   ============================================ */
+
+.stats-overview {
+    padding: var(--space-md);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-sm);
+}
+
+.stat-card {
+    background: var(--card);
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    text-align: center;
+    box-shadow: var(--shadow);
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: var(--space-xs);
+}
+
+.stat-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ============================================
+   Exercise Selector
+   ============================================ */
+
+.exercise-selector {
+    padding: var(--space-md);
+    background: var(--card);
+    border-top: 1px solid var(--stroke);
+    border-bottom: 1px solid var(--stroke);
+}
+
+.exercise-selector label {
+    display: block;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: var(--space-xs);
+}
+
+.exercise-selector-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md);
+    background: var(--bg);
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius-md);
+    font-size: 16px;
+    color: var(--ink);
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.exercise-selector-btn:active {
+    transform: scale(0.98);
+    opacity: 0.8;
+}
+
+.exercise-selector-btn svg {
+    color: var(--muted);
+    flex-shrink: 0;
+}
+
+/* Exercise Option Buttons */
+.exercise-option {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md);
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--stroke);
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.exercise-option:active {
+    background: var(--bg);
+}
+
+.exercise-option--selected {
+    background: var(--bg);
+}
+
+.exercise-option-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.exercise-option-name {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--ink);
+}
+
+.exercise-option-equipment {
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.exercise-option svg {
+    color: var(--cta);
+    flex-shrink: 0;
+}
+
+/* ============================================
+   Chart Container
+   ============================================ */
+
+.chart-container {
+    padding: var(--space-md);
+    background: var(--card);
+    margin: var(--space-md);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--stroke);
+    box-shadow: var(--shadow);
+}
+
+.chart-container h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: var(--space-md);
+}
+
+.chart-container canvas {
+    max-height: 300px;
+}
+
+/* ============================================
+   Empty State
+   ============================================ */
+
+.stats-empty {
+    padding: var(--space-xl);
+    text-align: center;
+}
+
+.stats-empty p {
+    font-size: 16px;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+/* ============================================
+   Dark Mode Adjustments
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+    .chart-container canvas {
+        /* Chart.js will handle dark mode colors via JS */
+    }
+}
