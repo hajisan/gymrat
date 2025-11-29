@@ -14,12 +14,10 @@ import com.example.gymrat_backend.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -74,7 +72,7 @@ public class WorkoutServiceImpl implements WorkoutService {
         // Map performed exercises til response
         List<WorkoutExerciseResponse> exerciseResponses = session.getExercises().stream()
                 .map(this::mapToWorkoutExerciseResponse)
-                .collect(Collectors.toList());
+                .toList();
 
         response.setExercises(exerciseResponses);
 
@@ -184,12 +182,16 @@ public class WorkoutServiceImpl implements WorkoutService {
                 .findByPerformedExerciseOrderBySetNumberAsc(performedExercise)
                 .stream()
                 .filter(set -> set.getSetNumber() > deletedSetNumber)
-                .collect(Collectors.toList());
+                .toList();
 
-        // Decrement set numbers for all remaining sets
+        // Decrement set numbers for all remaining sets and save in batch
+        List<PerformedSet> updatedSets = new ArrayList<>();
         for (PerformedSet set : remainingSets) {
             set.setSetNumber(set.getSetNumber() - 1);
-            performedSetRepository.save(set);
+            updatedSets.add(set);
+        }
+        if (!updatedSets.isEmpty()) {
+            performedSetRepository.saveAll(updatedSets);
         }
     }
 
@@ -220,7 +222,7 @@ public class WorkoutServiceImpl implements WorkoutService {
         List<PerformedExercise> pastPerformances = performedExerciseRepository.findByExerciseExerciseId(exerciseId)
                 .stream()
                 .filter(pe -> excludeSessionId == null || !pe.getSession().getTrainingSessionId().equals(excludeSessionId))
-                .collect(Collectors.toList());
+                .toList();
 
         if (pastPerformances.isEmpty()) {
             return null; // Ingen tidligere data
@@ -279,7 +281,7 @@ public class WorkoutServiceImpl implements WorkoutService {
         // Map sets
         List<WorkoutSetResponse> setResponses = performedExercise.getSets().stream()
                 .map(s -> mapToWorkoutSetResponse(s, false))
-                .collect(Collectors.toList());
+                .toList();
         response.setSets(setResponses);
 
         // Hent last performed data (exclude current session)
@@ -322,7 +324,7 @@ public class WorkoutServiceImpl implements WorkoutService {
                     summary.setExerciseCount(session.getExercises() != null ? session.getExercises().size() : 0);
                     return summary;
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

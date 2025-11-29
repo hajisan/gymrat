@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -28,7 +27,7 @@ public class ExerciseServiceImpl implements ExerciseService {
     public List<ExerciseDTO> getAllExercises() {
         return exerciseRepository.findAll().stream()
                 .map(exerciseMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
