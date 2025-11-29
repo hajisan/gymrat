@@ -185,13 +185,11 @@ public class WorkoutServiceImpl implements WorkoutService {
                 .toList();
 
         // Decrement set numbers for all remaining sets and save in batch
-        List<PerformedSet> updatedSets = new ArrayList<>();
         for (PerformedSet set : remainingSets) {
             set.setSetNumber(set.getSetNumber() - 1);
-            updatedSets.add(set);
         }
-        if (!updatedSets.isEmpty()) {
-            performedSetRepository.saveAll(updatedSets);
+        if (!remainingSets.isEmpty()) {
+            performedSetRepository.saveAll(remainingSets);
         }
     }
 
