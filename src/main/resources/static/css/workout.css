@@ -13,17 +13,7 @@
    Workout Header
    ============================================ */
 
-.workout-header {
-    position: sticky;
-    top: 0;
-    background: var(--card);
-    border-bottom: 1px solid var(--stroke);
-    padding: var(--space-md);
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    gap: var(--space-md);
-}
+/* Header styles moved to unified .page-header in components.css */
 
 .close-workout {
     width: 32px;
@@ -41,14 +31,7 @@
     transform: scale(0.95);
 }
 
-.workout-title {
-    font-size: 20px;
-    font-weight: 600;
-    margin: 0;
-}
-
 .workout-datetime {
-    margin-left: auto;
     text-align: right;
     font-size: 14px;
 }

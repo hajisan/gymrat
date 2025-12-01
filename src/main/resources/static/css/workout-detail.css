@@ -13,53 +13,7 @@
    Header Section
    ============================================ */
 
-.workout-detail-header {
-    background: var(--card);
-    border-bottom: 1px solid var(--stroke);
-    padding: var(--space-md);
-}
-
-.back-button {
-    display: flex;
-    align-items: center;
-    gap: var(--space-xs);
-    background: transparent;
-    border: none;
-    color: var(--ink);
-    font-size: 16px;
-    font-weight: 500;
-    padding: var(--space-sm) 0;
-    cursor: pointer;
-    margin-bottom: var(--space-md);
-}
-
-.back-button:active {
-    opacity: 0.6;
-}
-
-.back-button svg {
-    flex-shrink: 0;
-}
-
-.workout-detail-title h1 {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--ink);
-    margin-bottom: var(--space-xs);
-}
-
-.workout-detail-time {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--muted);
-    margin-bottom: 4px;
-}
-
-.workout-detail-duration {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--muted);
-}
+/* Header styles moved to unified .page-header in components.css */
 
 .workout-detail-note {
     margin-top: var(--space-md);

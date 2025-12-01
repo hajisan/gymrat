@@ -10,10 +10,15 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="GymRat" />
+    <link rel="apple-touch-icon" href="icons/gymrat-iOS-Dark-1024x1024@1x.png" />
+
+    <!-- Preconnect to Google Fonts for faster loading on iOS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <link rel="stylesheet" href="css/main.css" />
 
-    <title>GymRat</title>
+    <title>GYMRAT</title>
 </head>
 <body>
 <div class="app" id="app">
@@ -30,17 +35,17 @@
                 </svg>
                 <span>Hjem</span>
             </button>
-            <button class="tab" data-tab="workout" aria-label="Træning">
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M7 7h2v10H7V7zm8 0h2v10h-2V7zM11 5h2v14h-2V5z"/>
-                </svg>
-                <span>Træning</span>
-            </button>
             <button class="tab" data-tab="stats" aria-label="Statistik">
                 <svg viewBox="0 0 24 24" fill="currentColor">
                     <path d="M3 13h4v8H3v-8zm6-5h4v13H9V8zm6-5h4v18h-4V3z"/>
                 </svg>
                 <span>Stats</span>
+            </button>
+            <button class="tab" data-tab="workout" aria-label="Træning">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M7 7h2v10H7V7zm8 0h2v10h-2V7zM11 5h2v14h-2V5z"/>
+                </svg>
+                <span>Træning</span>
             </button>
             <button class="tab" data-tab="history" aria-label="Historik">
                 <svg viewBox="0 0 24 24" fill="currentColor">

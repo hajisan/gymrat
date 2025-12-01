@@ -66,17 +66,21 @@ export class WorkoutView {
         const timeStr = this.formatTime(now);
 
         return `
-            <header class="workout-header">
+            <header class="page-header page-header--functional">
                 <button class="close-workout" id="closeWorkoutBtn" aria-label="Luk">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
                 </button>
-                <h1 class="workout-title">Aktiv træning</h1>
-                <div class="workout-datetime">
-                    <span class="workout-date">${dateStr}</span>
-                    <span class="workout-time">${timeStr}</span>
+                <div class="page-header__content">
+                    <h1 class="page-header__title">Aktiv træning</h1>
+                </div>
+                <div class="page-header__actions">
+                    <div class="workout-datetime">
+                        <span class="workout-date">${dateStr}</span>
+                        <span class="workout-time">${timeStr}</span>
+                    </div>
                 </div>
             </header>
         `;

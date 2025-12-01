@@ -8,16 +8,18 @@ Indeholder ugestatistik og seneste træning
 public class HomeResponse {
 
     private WeekStats weekStats;
-    private LastTraining lastTraining;
+    private java.util.List<LastTraining> recentTrainings;
+    private java.util.Map<String, TrainingDayData> trainingDays;
 
     // Konstruktør - uden args og med
 
     public HomeResponse() {
     }
 
-    public HomeResponse(WeekStats weekStats, LastTraining lastTraining) {
+    public HomeResponse(WeekStats weekStats, java.util.List<LastTraining> recentTrainings, java.util.Map<String, TrainingDayData> trainingDays) {
         this.weekStats = weekStats;
-        this.lastTraining = lastTraining;
+        this.recentTrainings = recentTrainings;
+        this.trainingDays = trainingDays;
     }
 
     // Getter og setter
@@ -29,11 +31,18 @@ public class HomeResponse {
         this.weekStats = weekStats;
     }
 
-    public LastTraining getLastTraining() {
-        return lastTraining;
+    public java.util.List<LastTraining> getRecentTrainings() {
+        return recentTrainings;
     }
-    public void setLastTraining(LastTraining lastTraining) {
-        this.lastTraining = lastTraining;
+    public void setRecentTrainings(java.util.List<LastTraining> recentTrainings) {
+        this.recentTrainings = recentTrainings;
+    }
+
+    public java.util.Map<String, TrainingDayData> getTrainingDays() {
+        return trainingDays;
+    }
+    public void setTrainingDays(java.util.Map<String, TrainingDayData> trainingDays) {
+        this.trainingDays = trainingDays;
     }
 
     // Nested classes
@@ -75,22 +84,42 @@ public class HomeResponse {
     }
 
     public static class LastTraining {
-        private String date;
+        private Long trainingSessionId;
+        private String startedAt;
+        private String completedAt;
         private String note;
+        private Integer exerciseCount;
 
         public LastTraining() {
         }
 
-        public LastTraining(String date, String note) {
-            this.date = date;
+        public LastTraining(Long trainingSessionId, String startedAt, String completedAt, String note, Integer exerciseCount) {
+            this.trainingSessionId = trainingSessionId;
+            this.startedAt = startedAt;
+            this.completedAt = completedAt;
             this.note = note;
+            this.exerciseCount = exerciseCount;
         }
 
-        public String getDate() {
-            return date;
+        public Long getTrainingSessionId() {
+            return trainingSessionId;
         }
-        public void setDate(String date) {
-            this.date = date;
+        public void setTrainingSessionId(Long trainingSessionId) {
+            this.trainingSessionId = trainingSessionId;
+        }
+
+        public String getStartedAt() {
+            return startedAt;
+        }
+        public void setStartedAt(String startedAt) {
+            this.startedAt = startedAt;
+        }
+
+        public String getCompletedAt() {
+            return completedAt;
+        }
+        public void setCompletedAt(String completedAt) {
+            this.completedAt = completedAt;
         }
 
         public String getNote() {
@@ -99,13 +128,48 @@ public class HomeResponse {
         public void setNote(String note) {
             this.note = note;
         }
+
+        public Integer getExerciseCount() {
+            return exerciseCount;
+        }
+        public void setExerciseCount(Integer exerciseCount) {
+            this.exerciseCount = exerciseCount;
+        }
+    }
+
+    public static class TrainingDayData {
+        private Long trainingSessionId;
+        private Double volumeKg;
+
+        public TrainingDayData() {
+        }
+
+        public TrainingDayData(Long trainingSessionId, Double volumeKg) {
+            this.trainingSessionId = trainingSessionId;
+            this.volumeKg = volumeKg;
+        }
+
+        public Long getTrainingSessionId() {
+            return trainingSessionId;
+        }
+        public void setTrainingSessionId(Long trainingSessionId) {
+            this.trainingSessionId = trainingSessionId;
+        }
+
+        public Double getVolumeKg() {
+            return volumeKg;
+        }
+        public void setVolumeKg(Double volumeKg) {
+            this.volumeKg = volumeKg;
+        }
     }
 
     @Override
     public String toString() {
         return "HomeResponse{" +
                 "weekStats=" + weekStats +
-                ", lastTraining=" + lastTraining +
+                ", recentTrainings=" + recentTrainings +
+                ", trainingDays=" + trainingDays +
                 '}';
     }
 }
