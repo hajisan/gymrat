@@ -14,16 +14,46 @@
     overscroll-behavior-y: none;
 }
 
-.home__head {
-    padding: var(--space-md) 0;
+/* Header styles moved to unified .page-header in components.css */
+
+/* Center the home header */
+.page-header--home.page-header--centered {
+    align-items: center !important;
+    text-align: center !important;
 }
 
-.brand {
-    font-size: 32px;
-    font-weight: 700;
-    line-height: 1.2;
-    letter-spacing: -0.5px;
-    margin: 0 0 var(--space-xs);
+.page-header--home.page-header--centered .page-header__content {
+    align-items: center;
+    width: 100%;
+}
+
+.page-header--home.page-header--centered .page-header__actions {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+/* Brand title with custom font */
+.page-header--home .page-header__title {
+    /* fonts 'Rubik Wet Paint', 'Fugaz One', 'Archivo Black', 'Bebas Neue', 'Nosifer' */
+    font-family: 'Fugaz One', cursive, -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    letter-spacing: 2px;
+    font-size: 30px;
+}
+
+/* Brand icon */
+.brand-icon {
+    display: inline-block;
+    height: 36px;
+    width: auto;
+    vertical-align: middle;
+    margin-left: 8px;
+    margin-top: -4px;
+    border-radius: 8px;
+    border: none;
 }
 
 /* ============================================
@@ -54,24 +84,356 @@
 }
 
 /* ============================================
-   Last Training Card
+   Last Training Card (using workout-card from History)
    ============================================ */
 
-.last__row {
+.workout-card {
+    background: var(--card);
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.workout-card:active {
+    transform: scale(0.98);
+    background: var(--bg);
+}
+
+.workout-card-header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: var(--space-sm);
+}
+
+.workout-card-date {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.workout-card-time {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+}
+
+.workout-card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: var(--space-sm);
+}
+
+.workout-card-duration {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+}
+
+.workout-card-exercises {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+}
+
+.workout-card-note {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-xs);
+    padding: var(--space-sm);
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    color: var(--muted);
+    font-style: italic;
+}
+
+.workout-card-note svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.workout-card-note span {
+    flex: 1;
+    line-height: 1.4;
+}
+
+/* ============================================
+   Training Calendar (GitHub-style contribution graph)
+   ============================================ */
+
+.training-calendar {
+    background: var(--card);
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.calendar-wrapper {
+    overflow-x: auto;
+    overflow-y: hidden;
+    /* Hide scrollbar */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    border: none;
+    outline: none;
+    /* iOS fixes */
+    -webkit-overflow-scrolling: touch;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+
+.calendar-wrapper::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+.calendar-months {
+    display: flex;
+    gap: 3px;
+    margin-left: 27px;
+    margin-bottom: 3px;
+    font-size: 10px;
+    color: var(--muted);
+    height: 15px;
+}
+
+.calendar-months span {
+    min-width: 11px;
+}
+
+.calendar-body {
+    display: flex;
+    gap: 4px;
+    border: none;
+    outline: none;
+    /* iOS rendering fix */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-rows: repeat(7, 11px);
+    gap: 3px;
+    font-size: 9px;
+    color: var(--muted);
+    text-align: right;
+    padding-right: 4px;
+    width: 19px;
+    border: none;
+    outline: none;
+}
+
+.calendar-squares {
+    display: grid;
+    grid-template-rows: repeat(7, 11px);
+    grid-auto-flow: column;
+    grid-auto-columns: 11px;
+    gap: 3px;
+    border: none;
+    outline: none;
+    /* iOS rendering fix */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+.calendar-square {
+    width: 11px;
+    height: 11px;
+    border-radius: 2px;
+    border: none;
+}
+
+.calendar-square--empty {
+    background: transparent;
+}
+
+/* GitHub's green color levels */
+.calendar-square--level-0 {
+    background: #38383b;
+}
+
+.calendar-square--level-1 {
+    background: #9be9a8;
+}
+
+.calendar-square--level-2 {
+    background: #40c463;
+}
+
+.calendar-square--level-3 {
+    background: #30a14e;
+}
+
+.calendar-square--level-4 {
+    background: #216e39;
+}
+
+.calendar-square--today {
+    outline: 1px solid rgb(175, 175, 175);
+    outline-offset: -1px;
+}
+
+.calendar-square--sample {
+    width: 10px;
+    height: 10px;
+}
+
+.calendar-square--clickable {
+    cursor: pointer;
+}
+
+.calendar-square--clickable:hover {
+    opacity: 0.8;
+    transform: scale(1.1);
+}
+
+.calendar-legend {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    padding-top: 8px;
+    margin-top: 4px;
+    border: none;
+}
+
+.calendar-legend-text {
+    font-size: 11px;
+    color: var(--muted);
+}
+
+.calendar-legend-items {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+}
+
+/* ============================================
+   Calendar Day Popup
+   ============================================ */
+
+.calendar-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    animation: fadeIn 0.2s ease;
+}
+
+.calendar-popup {
+    background: var(--card);
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius-lg);
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease;
+}
+
+.calendar-popup-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: var(--space-xs);
+    padding: var(--space-md);
+    border-bottom: 1px solid var(--stroke);
 }
 
-.last__title {
-    font-size: 17px;
+.calendar-popup-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--ink);
+}
+
+.calendar-popup-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink);
+    transition: background 0.2s ease;
+}
+
+.calendar-popup-close:active {
+    background: var(--stroke);
+}
+
+.calendar-popup-content {
+    padding: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.calendar-popup-date,
+.calendar-popup-volume {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 15px;
+    color: var(--ink);
+}
+
+.calendar-popup-date svg,
+.calendar-popup-volume svg {
+    color: var(--muted);
+    flex-shrink: 0;
+}
+
+.calendar-popup-volume strong {
+    color: var(--cta);
     font-weight: 600;
 }
 
-.card .subtle {
+.calendar-popup-btn {
+    width: 100%;
+    margin-top: var(--space-sm);
+    padding: 12px;
+    background: var(--cta);
+    color: var(--cta-ink);
+    border-radius: var(--radius-md);
     font-size: 15px;
-    margin-top: 4px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    transition: transform 0.1s ease;
+}
+
+.calendar-popup-btn:active {
+    transform: scale(0.98);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 /* ============================================
