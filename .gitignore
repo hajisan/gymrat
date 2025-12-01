@@ -33,7 +33,7 @@ build/
 .vscode/
 
 ### MacOS files ###
-./DS_Store
+**/.DS_Store
 src/main/resources/static/icons/.DS_Store
 src/main/.DS_Store
 src/.DS_Store
