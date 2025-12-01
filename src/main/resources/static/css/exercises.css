@@ -13,24 +13,7 @@
    Header Section
    ============================================ */
 
-.exercises-header {
-    background: var(--card);
-    border-bottom: 1px solid var(--stroke);
-    padding: var(--space-lg) var(--space-md);
-    text-align: center;
-}
-
-.exercises-header h1 {
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--ink);
-    margin-bottom: var(--space-xs);
-}
-
-.exercises-subtitle {
-    font-size: 15px;
-    color: var(--muted);
-}
+/* Header styles moved to unified .page-header in components.css */
 
 /* ============================================
    Exercises List
@@ -183,23 +166,9 @@
    Detail Header
    ============================================ */
 
-.exercise-detail-header {
-    background: var(--card);
-    border-bottom: 1px solid var(--stroke);
-    padding: var(--space-md);
-    position: relative;
-}
-
-.exercise-detail-header h1 {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--ink);
-}
+/* Header styles moved to unified .page-header in components.css */
 
 .btn-delete-header {
-    position: absolute;
-    top: var(--space-md);
-    right: var(--space-md);
     width: 40px;
     height: 40px;
     display: flex;
@@ -210,6 +179,7 @@
     color: #dc3545;
     cursor: pointer;
     transition: all 0.2s ease;
+    margin-left: auto;
 }
 
 .btn-delete-header:active {
