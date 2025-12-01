@@ -54,7 +54,7 @@ export class WorkoutDetailView {
         const duration = this.formatDuration(this.workout.startedAt);
 
         return `
-            <header class="workout-detail-header">
+            <header class="page-header page-header--detail">
                 <button class="back-button" id="backButton">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="15 18 9 12 15 6"></polyline>
@@ -62,10 +62,10 @@ export class WorkoutDetailView {
                     Tilbage
                 </button>
 
-                <div class="workout-detail-title">
-                    <h1>${date}</h1>
-                    <p class="workout-detail-time">${timeRange}</p>
-                    <p class="workout-detail-duration">Varighed: ${duration}</p>
+                <div class="page-header__content">
+                    <h1 class="page-header__title">${date}</h1>
+                    <p class="page-header__subtitle">${timeRange}</p>
+                    <p class="page-header__subtitle">Varighed: ${duration}</p>
                 </div>
 
                 ${this.workout.note ? `
@@ -225,7 +225,8 @@ export class WorkoutDetailView {
         const backButton = document.getElementById('backButton');
         if (backButton) {
             backButton.addEventListener('click', () => {
-                router.navigate('history');
+                // Use browser back to return to previous page (could be home or history)
+                window.history.back();
             });
         }
 

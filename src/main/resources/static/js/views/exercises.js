@@ -16,9 +16,11 @@ export class ExercisesView {
 
         return `
             <div class="exercises-view">
-                <header class="exercises-header">
-                    <h1>Øvelser</h1>
-                    <p class="exercises-subtitle">Administrer dine øvelser</p>
+                <header class="page-header page-header--centered">
+                    <div class="page-header__content">
+                        <h1 class="page-header__title">Øvelser</h1>
+                        <p class="page-header__subtitle">Administrer dine øvelser</p>
+                    </div>
                 </header>
 
                 ${this.renderExercisesList()}
