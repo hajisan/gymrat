@@ -16,9 +16,11 @@ export class HistoryView {
 
         return `
             <div class="history-view">
-                <header class="view-header">
-                    <h1>Historik</h1>
-                    <p class="subtle">Dine tidligere træninger</p>
+                <header class="page-header page-header--centered">
+                    <div class="page-header__content">
+                        <h1 class="page-header__title">Historik</h1>
+                        <p class="page-header__subtitle">Dine tidligere træninger</p>
+                    </div>
                 </header>
 
                 <div class="history-content">

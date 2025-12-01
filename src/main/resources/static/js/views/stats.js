@@ -30,8 +30,11 @@ export class StatsView {
 
         return `
             <div class="stats-view">
-                <header class="stats-header">
-                    <h1>Statistik</h1>
+                <header class="page-header page-header--centered">
+                    <div class="page-header__content">
+                        <h1 class="page-header__title">Statistik</h1>
+                        <p class="page-header__subtitle">Se stats for øvelser + mere</p>
+                    </div>
                 </header>
 
                 ${this.renderOverviewStats()}

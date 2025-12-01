@@ -3,6 +3,13 @@
    Imports all CSS modules
    ============================================ */
 
+/* Google Fonts - Preconnect for faster loading */
+@import url('https://fonts.googleapis.com/css2?family=Nosifer&display=block');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nosifer&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fugaz+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rubik+Wet+Paint&display=swap');
+
 /* Base styles - variables, reset, typography */
 @import url('base.css');
 

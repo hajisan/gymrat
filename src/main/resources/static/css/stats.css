@@ -13,18 +13,7 @@
    Header Section
    ============================================ */
 
-.stats-header {
-    background: var(--card);
-    border-bottom: 1px solid var(--stroke);
-    padding: var(--space-lg) var(--space-md);
-    text-align: center;
-}
-
-.stats-header h1 {
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--ink);
-}
+/* Header styles moved to unified .page-header in components.css */
 
 /* ============================================
    Overview Stats Cards
