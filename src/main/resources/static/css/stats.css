@@ -16,38 +16,55 @@
 /* Header styles moved to unified .page-header in components.css */
 
 /* ============================================
-   Overview Stats Cards
+   Overview Stats Bar - Minimal Layout (same as home view)
    ============================================ */
 
 .stats-overview {
     padding: var(--space-md);
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-sm);
 }
 
-.stat-card {
-    background: var(--card);
-    border: 1px solid var(--stroke);
-    border-radius: var(--radius-md);
-    padding: var(--space-md);
-    text-align: center;
-    box-shadow: var(--shadow);
+/* Reuse stats-bar styles from home.css */
+.stats-overview .stats-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: var(--space-md) 0;
 }
 
-.stat-value {
-    font-size: 28px;
+.stats-overview .stats-bar__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+}
+
+.stats-overview .stats-bar__item svg {
+    width: 20px;
+    height: 20px;
+    color: var(--muted);
+    margin-bottom: 2px;
+}
+
+.stats-overview .stats-bar__value {
+    font-size: 24px;
     font-weight: 700;
     color: var(--ink);
-    margin-bottom: var(--space-xs);
+    line-height: 1;
+    white-space: nowrap;
 }
 
-.stat-label {
+.stats-overview .stats-bar__label {
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 500;
     color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.stats-overview .stats-bar__divider {
+    width: 1px;
+    height: 40px;
+    background: var(--stroke);
 }
 
 /* ============================================
@@ -153,11 +170,44 @@
     box-shadow: var(--shadow);
 }
 
+.chart-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-md);
+}
+
 .chart-container h2 {
     font-size: 18px;
     font-weight: 600;
     color: var(--ink);
-    margin-bottom: var(--space-md);
+    margin: 0;
+}
+
+.chart-exercise-selector {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-sm) var(--space-md);
+    background: var(--bg);
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    color: var(--ink);
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.chart-exercise-selector:active {
+    transform: scale(0.98);
+    opacity: 0.8;
+}
+
+.chart-exercise-selector svg {
+    color: var(--muted);
+    flex-shrink: 0;
 }
 
 .chart-container canvas {

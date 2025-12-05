@@ -15,11 +15,36 @@
 
 /* Header styles moved to unified .page-header in components.css */
 
-.workout-detail-note {
-    margin-top: var(--space-md);
+/* ============================================
+   Note Section
+   ============================================ */
+
+.workout-note-section {
+    margin: var(--space-md);
     padding: var(--space-md);
-    background: var(--bg);
+    background: var(--card);
+    border: 1px solid var(--stroke);
     border-radius: var(--radius-md);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: background 0.2s ease, transform 0.1s ease;
+}
+
+/* Only make clickable if it has more content */
+.workout-note-section.has-more {
+    cursor: pointer;
+}
+
+/* Active/tap state - iOS style */
+.workout-note-section.has-more:active {
+    background: rgba(0, 0, 0, 0.03);
+    transform: scale(0.99);
+}
+
+.workout-note-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-xs);
 }
 
 .note-label {
@@ -28,13 +53,59 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: var(--muted);
-    margin-bottom: var(--space-xs);
 }
 
-.workout-detail-note p {
+.note-expand-icon {
+    color: var(--cta);
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+}
+
+/* Rotate chevron when expanded */
+.workout-note-section.expanded .note-expand-icon {
+    transform: rotate(180deg);
+}
+
+.workout-note-content {
+    position: relative;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.8, 0.0, 0.2, 1);
+}
+
+/* Truncate to 1 line when not expanded */
+.workout-note-section.has-more:not(.expanded) .workout-note-content {
+    max-height: 1.5em; /* 1 line with line-height 1.5 */
+}
+
+/* Smooth expansion - set generous max-height when expanded */
+.workout-note-section.has-more.expanded .workout-note-content {
+    max-height: 1000px; /* Generous max for smooth animation */
+}
+
+/* Fade gradient on last line when truncated */
+.workout-note-section.has-more:not(.expanded) .workout-note-content::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 40%;
+    height: 1.5em;
+    background: linear-gradient(to right, transparent, var(--card));
+    pointer-events: none;
+}
+
+.workout-note-content p {
     font-size: 15px;
     color: var(--ink);
     line-height: 1.5;
+    margin: 0;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+    .workout-note-section.has-more:active {
+        background: rgba(255, 255, 255, 0.05);
+    }
 }
 
 /* ============================================
@@ -112,50 +183,77 @@
    ============================================ */
 
 .workout-detail-summary {
+    margin: 0 var(--space-md) var(--space-md) var(--space-md);
     padding: var(--space-md);
     background: var(--card);
-    border-top: 1px solid var(--stroke);
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
 }
 
 .workout-detail-summary h3 {
-    font-size: 16px;
+    font-size: 22px;
     font-weight: 600;
     color: var(--ink);
-    margin-bottom: var(--space-md);
+    margin-bottom: var(--space-sm);
 }
 
-.summary-stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-md);
+/* Stats Bar - reusing from home.css */
+.workout-detail-summary .stats-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: var(--space-md) 0;
 }
 
-.summary-stat {
+.workout-detail-summary .stats-bar__item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--space-xs);
-    padding: var(--space-md);
-    background: var(--bg);
-    border-radius: var(--radius-md);
+    gap: 4px;
+    flex: 1;
 }
 
-.summary-stat-label {
-    font-size: 12px;
-    font-weight: 500;
+.workout-detail-summary .stats-bar__item svg {
+    width: 20px;
+    height: 20px;
     color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    margin-bottom: 2px;
 }
 
-.summary-stat-value {
+.workout-detail-summary .stats-bar__value {
     font-size: 24px;
     font-weight: 700;
     color: var(--ink);
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.workout-detail-summary .stats-bar__label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+/* Give volume item more space for larger numbers */
+.workout-detail-summary .stats-bar__item:last-child {
+    flex: 1.3;
+}
+
+/* Slightly smaller font for volume to fit better */
+.workout-detail-summary .stats-bar__item:last-child .stats-bar__value {
+    font-size: 22px;
+}
+
+.workout-detail-summary .stats-bar__divider {
+    width: 1px;
+    height: 40px;
+    background: var(--stroke);
 }
 
 /* ============================================
-   Delete Button
+   Delete Button - Option C: Smaller filled button
    ============================================ */
 
 .btn-delete {
@@ -164,23 +262,24 @@
     justify-content: center;
     gap: var(--space-xs);
     width: 100%;
-    min-height: 48px;
+    height: 40px;
     margin-top: var(--space-lg);
-    padding: var(--space-md);
-    background: transparent;
-    border: 2px solid #dc3545;
+    padding: 0 var(--space-md);
+    background: #dc3545;
+    border: none;
     border-radius: var(--radius-md);
-    color: #dc3545;
-    font-size: 16px;
+    color: white;
+    font-size: 15px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.25);
 }
 
 .btn-delete:active {
-    background: #dc3545;
-    color: white;
+    background: #c82333;
     transform: scale(0.98);
+    box-shadow: 0 1px 4px rgba(220, 53, 69, 0.3);
 }
 
 .btn-delete svg {

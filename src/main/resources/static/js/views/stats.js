@@ -38,7 +38,6 @@ export class StatsView {
                 </header>
 
                 ${this.renderOverviewStats()}
-                ${this.renderExerciseSelector()}
                 ${this.renderChart()}
             </div>
         `;
@@ -92,57 +91,96 @@ export class StatsView {
 
         return `
             <div class="stats-overview">
-                <div class="stat-card">
-                    <div class="stat-value">${stats.totalWorkouts}</div>
-                    <div class="stat-label">Træninger</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">${stats.streak}</div>
-                    <div class="stat-label">Dages streak</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">${this.formatVolume(stats.totalVolume)}</div>
-                    <div class="stat-label">Total volumen</div>
+                <div class="stats-bar">
+                    <div class="stats-bar__item">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <rect x="3" y="13" width="4" height="8" stroke="currentColor" stroke-width="2"/>
+                            <rect x="10" y="4" width="4" height="17" stroke="currentColor" stroke-width="2"/>
+                            <rect x="17" y="9" width="4" height="12" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span class="stats-bar__value">${this.formatVolume(stats.avgVolumePerWorkout)}</span>
+                        <span class="stats-bar__label">gns. volumen</span>
+                    </div>
+                    <div class="stats-bar__divider"></div>
+                    <div class="stats-bar__item">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <polyline points="12 6 12 12 16 14" stroke="currentColor" stroke-width="2" fill="none"/>
+                        </svg>
+                        <span class="stats-bar__value">${stats.avgDuration}</span>
+                        <span class="stats-bar__label">gns. varighed</span>
+                    </div>
+                    <div class="stats-bar__divider"></div>
+                    <div class="stats-bar__item">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/>
+                            <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/>
+                            <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span class="stats-bar__value">${stats.workoutsThisMonth}</span>
+                        <span class="stats-bar__label">denne måned</span>
+                    </div>
                 </div>
             </div>
         `;
     }
 
     calculateOverviewStats() {
-        const totalWorkouts = this.workouts.length;
-        const streak = this.calculateStreak();
-        const totalVolume = this.calculateTotalVolume();
+        const avgVolumePerWorkout = this.calculateAvgVolumePerWorkout();
+        const avgDuration = this.calculateAvgDuration();
+        const workoutsThisMonth = this.calculateWorkoutsThisMonth();
 
-        return { totalWorkouts, streak, totalVolume };
+        return { avgVolumePerWorkout, avgDuration, workoutsThisMonth };
     }
 
-    calculateStreak() {
+    calculateAvgVolumePerWorkout() {
         if (this.workouts.length === 0) return 0;
 
-        // Sort workouts by date (newest first)
-        const sortedWorkouts = [...this.workouts].sort((a, b) =>
-            new Date(b.completedAt) - new Date(a.completedAt)
-        );
+        const totalVolume = this.calculateTotalVolume();
+        return totalVolume / this.workouts.length;
+    }
 
-        let streak = 0;
-        let currentDate = new Date();
-        currentDate.setHours(0, 0, 0, 0);
+    calculateAvgDuration() {
+        if (this.workouts.length === 0) return '0 min';
 
-        for (const workout of sortedWorkouts) {
-            const workoutDate = new Date(workout.completedAt);
-            workoutDate.setHours(0, 0, 0, 0);
+        let totalDurationMs = 0;
+        let validWorkouts = 0;
 
-            const daysDiff = Math.floor((currentDate - workoutDate) / (1000 * 60 * 60 * 24));
-
-            if (daysDiff === streak) {
-                streak++;
-                currentDate = workoutDate;
-            } else if (daysDiff > streak + 1) {
-                break;
+        this.workouts.forEach(workout => {
+            if (workout.startedAt && workout.completedAt) {
+                const start = new Date(workout.startedAt);
+                const end = new Date(workout.completedAt);
+                totalDurationMs += (end - start);
+                validWorkouts++;
             }
+        });
+
+        if (validWorkouts === 0) return '0 min';
+
+        const avgDurationMs = totalDurationMs / validWorkouts;
+        const avgMinutes = Math.round(avgDurationMs / 1000 / 60);
+
+        // Format as hours and minutes if over 60 minutes
+        if (avgMinutes >= 60) {
+            const hours = Math.floor(avgMinutes / 60);
+            const minutes = avgMinutes % 60;
+            return `${hours}t ${minutes}m`;
         }
 
-        return streak;
+        return `${avgMinutes} min`;
+    }
+
+    calculateWorkoutsThisMonth() {
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+
+        return this.workouts.filter(workout => {
+            const workoutDate = new Date(workout.completedAt);
+            return workoutDate.getMonth() === currentMonth &&
+                   workoutDate.getFullYear() === currentYear;
+        }).length;
     }
 
     calculateTotalVolume() {
@@ -164,12 +202,18 @@ export class StatsView {
     }
 
     formatVolume(volume) {
-        if (volume >= 1000000) {
-            return `${(volume / 1000000).toFixed(1)}M kg`;
-        } else if (volume >= 1000) {
-            return `${(volume / 1000).toFixed(1)}K kg`;
+        if (!volume || volume === 0) return '0 kg';
+
+        const rounded = Math.round(volume);
+
+        // For tal over 10.000, vis i "k" format (f.eks. 10.2k kg)
+        if (rounded >= 10000) {
+            const kValue = (rounded / 1000).toFixed(1);
+            return `${kValue}k kg`;
         }
-        return `${Math.round(volume)} kg`;
+
+        // For tal under 10.000, vis normalt med tusindtalsseparator
+        return `${rounded.toLocaleString('da-DK')} kg`;
     }
 
     renderExerciseSelector() {
@@ -239,11 +283,22 @@ export class StatsView {
             return '';
         }
 
+        const selectedExercise = this.exercises.find(ex => ex.exerciseId === this.selectedExerciseId);
+
         return `
             <div class="chart-container">
-                <h2>Vægtprogression</h2>
+                <div class="chart-header">
+                    <h2>Vægtprogression</h2>
+                    <button type="button" class="chart-exercise-selector" id="exerciseSelectorBtn">
+                        <span>${selectedExercise ? selectedExercise.name : 'Vælg øvelse'}</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                </div>
                 <canvas id="progressChart"></canvas>
             </div>
+            ${this.renderExerciseModal()}
         `;
     }
 

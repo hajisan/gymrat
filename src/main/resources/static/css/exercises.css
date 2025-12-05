@@ -16,6 +16,66 @@
 /* Header styles moved to unified .page-header in components.css */
 
 /* ============================================
+   Search and Controls
+   ============================================ */
+
+.exercises-controls {
+    padding: var(--space-md);
+    padding-bottom: var(--space-sm);
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.search-box {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    background: var(--card);
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius-md);
+    padding: var(--space-sm) var(--space-md);
+}
+
+.search-box svg {
+    color: var(--muted);
+    flex-shrink: 0;
+}
+
+.search-box input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    color: var(--ink);
+    font-family: inherit;
+    outline: none;
+}
+
+.search-box input::placeholder {
+    color: var(--muted);
+}
+
+.btn-sort {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--card);
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--ink);
+}
+
+.btn-sort:active {
+    transform: scale(0.95);
+    opacity: 0.8;
+}
+
+/* ============================================
    Exercises List
    ============================================ */
 
