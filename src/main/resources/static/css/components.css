@@ -267,13 +267,51 @@
    ============================================ */
 
 .page-header {
-    background: var(--card);
-    border-bottom: 1px solid var(--stroke);
-    padding: var(--space-lg) var(--space-md);
+    background: transparent;
+    border-bottom: none;
+    padding: var(--space-md) var(--space-md);
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-md);
+    position: relative;
+}
+
+.page-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(to right,
+        transparent 0%,
+        var(--muted) 50%,
+        transparent 100%
+    );
+}
+
+/* Home view: separator between title and button */
+.page-header--home::after {
+    display: none;
+}
+
+.page-header--home .page-header__content {
+    position: relative;
+}
+
+.page-header--home .page-header__content::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(to right,
+        transparent 0%,
+        var(--muted) 50%,
+        transparent 100%
+    );
 }
 
 /* Header variants */
@@ -289,7 +327,6 @@
     text-align: left;
     border-bottom: none;
     background: transparent;
-    padding: var(--space-md) 0;
 }
 
 .page-header--home.page-header--centered {
@@ -298,9 +335,8 @@
 }
 
 .page-header--functional {
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    background: var(--card);
+    border-bottom: 1px solid var(--stroke);
 }
 
 .page-header--detail {
@@ -315,6 +351,7 @@
     flex-direction: column;
     gap: var(--space-xs);
     flex: 1;
+    padding-bottom: var(--space-xs);
 }
 
 .page-header--centered .page-header__content {
@@ -330,11 +367,7 @@
     line-height: 1.2;
 }
 
-.page-header--home .page-header__title {
-    font-size: 32px;
-    letter-spacing: -0.5px;
-}
-
+/* Smaller title on workout/functional header to fit on one line */
 .page-header--functional .page-header__title {
     font-size: 20px;
     font-weight: 600;
@@ -345,14 +378,6 @@
     font-size: 15px;
     color: var(--muted);
     margin: 0;
-}
-
-.page-header--home .page-header__subtitle {
-    font-size: 17px;
-}
-
-.page-header--functional .page-header__subtitle {
-    font-size: 14px;
 }
 
 /* Header actions (buttons, close button, etc.) */
@@ -369,7 +394,6 @@
 
 .page-header--home .page-header__actions {
     width: 100%;
-    margin-top: var(--space-md);
 }
 
 .page-header--detail .page-header__content {

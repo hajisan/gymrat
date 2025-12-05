@@ -34,6 +34,7 @@ export class WorkoutDetailView {
         return `
             <div class="workout-detail-view">
                 ${this.renderHeader()}
+                ${this.workout.note ? this.renderNote() : ''}
                 ${this.renderExercises()}
                 ${this.renderSummary()}
             </div>
@@ -67,14 +68,28 @@ export class WorkoutDetailView {
                     <p class="page-header__subtitle">${timeRange}</p>
                     <p class="page-header__subtitle">Varighed: ${duration}</p>
                 </div>
-
-                ${this.workout.note ? `
-                    <div class="workout-detail-note">
-                        <div class="note-label">Note</div>
-                        <p>${this.workout.note}</p>
-                    </div>
-                ` : ''}
             </header>
+        `;
+    }
+
+    renderNote() {
+        // Estimate if note will span more than 3 lines (roughly 100 characters on iPhone 12 mini)
+        const isLongNote = this.workout.note.length > 100;
+
+        return `
+            <div class="workout-note-section ${isLongNote ? 'has-more' : ''}" id="noteSection">
+                <div class="workout-note-header">
+                    <span class="note-label">NOTE</span>
+                    ${isLongNote ? `
+                        <svg class="note-expand-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    ` : ''}
+                </div>
+                <div class="workout-note-content">
+                    <p>${this.workout.note}</p>
+                </div>
+            </div>
         `;
     }
 
@@ -147,25 +162,39 @@ export class WorkoutDetailView {
         return `
             <div class="workout-detail-summary">
                 <h3>Sammendrag</h3>
-                <div class="summary-stats">
-                    <div class="summary-stat">
-                        <span class="summary-stat-label">Øvelser</span>
-                        <span class="summary-stat-value">${totalExercises}</span>
+                <div class="stats-bar">
+                    <div class="stats-bar__item">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M13 3c0 0-1 2-1 4s2 3 2 5-2 4-5 4-5-2-5-5 2-6 6-8" stroke="currentColor" stroke-width="2"/>
+                            <path d="M14 8c0-2 2-4 2-5" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span class="stats-bar__value">${totalExercises}</span>
+                        <span class="stats-bar__label">øvelse${totalExercises !== 1 ? 'r' : ''}</span>
                     </div>
-                    <div class="summary-stat">
-                        <span class="summary-stat-label">Sæt</span>
-                        <span class="summary-stat-value">${totalSets}</span>
+                    <div class="stats-bar__divider"></div>
+                    <div class="stats-bar__item">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M4 17h3l3-10 4 14 2-6h4" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span class="stats-bar__value">${totalSets}</span>
+                        <span class="stats-bar__label">sæt</span>
                     </div>
                     ${totalVolume > 0 ? `
-                        <div class="summary-stat">
-                            <span class="summary-stat-label">Volumen</span>
-                            <span class="summary-stat-value">${Math.round(totalVolume)} kg</span>
+                        <div class="stats-bar__divider"></div>
+                        <div class="stats-bar__item">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <rect x="3" y="13" width="4" height="8" stroke="currentColor" stroke-width="2"/>
+                                <rect x="10" y="4" width="4" height="17" stroke="currentColor" stroke-width="2"/>
+                                <rect x="17" y="9" width="4" height="12" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            <span class="stats-bar__value">${this.formatVolume(totalVolume)}</span>
+                            <span class="stats-bar__label">volumen</span>
                         </div>
                     ` : ''}
                 </div>
 
                 <button type="button" class="btn-delete" id="deleteWorkoutButton">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="3 6 5 6 21 6"></polyline>
                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                     </svg>
@@ -173,6 +202,13 @@ export class WorkoutDetailView {
                 </button>
             </div>
         `;
+    }
+
+    formatVolume(volumeKg) {
+        if (volumeKg >= 1000) {
+            return `${(volumeKg / 1000).toFixed(1)} t`;
+        }
+        return `${Math.round(volumeKg)} kg`;
     }
 
     formatDateTime(startTimeString) {
@@ -227,6 +263,14 @@ export class WorkoutDetailView {
             backButton.addEventListener('click', () => {
                 // Use browser back to return to previous page (could be home or history)
                 window.history.back();
+            });
+        }
+
+        // Add note expand/collapse listener
+        const noteSection = document.getElementById('noteSection');
+        if (noteSection && noteSection.classList.contains('has-more')) {
+            noteSection.addEventListener('click', () => {
+                noteSection.classList.toggle('expanded');
             });
         }
 

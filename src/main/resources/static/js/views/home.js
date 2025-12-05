@@ -52,42 +52,33 @@ export class HomeView {
         return `
             <section class="section">
                 <h2 class="section__title">Denne uge</h2>
-                <div class="stats">
-                    <article class="stat">
-                        <div class="stat__header">
-                            <div class="stat__icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M13 3s-1 2-1 4 2 3 2 5-2 4-5 4-5-2-5-5 2-6 6-8c-1 2-1 3 1 5 0-2 2-4 2-5z"/>
-                                </svg>
-                            </div>
-                            <div class="stat__label">Træninger</div>
-                        </div>
-                        <div class="stat__value">${stats.trainings}</div>
-                    </article>
-
-                    <article class="stat">
-                        <div class="stat__header">
-                            <div class="stat__icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M4 17h3l3-10 4 14 2-6h4" stroke="currentColor" stroke-width="2" fill="none"/>
-                                </svg>
-                            </div>
-                            <div class="stat__label">Sæt</div>
-                        </div>
-                        <div class="stat__value">${stats.sets}</div>
-                    </article>
-
-                    <article class="stat">
-                        <div class="stat__header">
-                            <div class="stat__icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M3 10h4v10H3V10zm7-6h4v16h-4V4zm7 9h4v7h-4v-7z"/>
-                                </svg>
-                            </div>
-                            <div class="stat__label">Volumen</div>
-                        </div>
-                        <div class="stat__value">${this.formatVolume(stats.volumeKg)}</div>
-                    </article>
+                <div class="stats-bar">
+                    <div class="stats-bar__item">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M13 3c0 0-1 2-1 4s2 3 2 5-2 4-5 4-5-2-5-5 2-6 6-8" stroke="currentColor" stroke-width="2"/>
+                            <path d="M14 8c0-2 2-4 2-5" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span class="stats-bar__value">${stats.trainings}</span>
+                        <span class="stats-bar__label">træning${stats.trainings !== 1 ? 'er' : ''}</span>
+                    </div>
+                    <div class="stats-bar__divider"></div>
+                    <div class="stats-bar__item">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M4 17h3l3-10 4 14 2-6h4" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span class="stats-bar__value">${stats.sets}</span>
+                        <span class="stats-bar__label">sæt</span>
+                    </div>
+                    <div class="stats-bar__divider"></div>
+                    <div class="stats-bar__item">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <rect x="3" y="13" width="4" height="8" stroke="currentColor" stroke-width="2"/>
+                            <rect x="10" y="4" width="4" height="17" stroke="currentColor" stroke-width="2"/>
+                            <rect x="17" y="9" width="4" height="12" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span class="stats-bar__value">${this.formatVolume(stats.volumeKg)}</span>
+                        <span class="stats-bar__label">volumen</span>
+                    </div>
                 </div>
             </section>
         `;
@@ -360,8 +351,16 @@ export class HomeView {
     formatVolume(kg) {
         if (!kg || kg === 0) return '0 kg';
 
-        // Format med tusindtalsseparator
-        return `${Math.round(kg).toLocaleString('da-DK')} kg`;
+        const rounded = Math.round(kg);
+
+        // For tal over 10.000, vis i "k" format (f.eks. 10.2k kg)
+        if (rounded >= 10000) {
+            const kValue = (rounded / 1000).toFixed(1);
+            return `${kValue}k kg`;
+        }
+
+        // For tal under 10.000, vis normalt med tusindtalsseparator
+        return `${rounded.toLocaleString('da-DK')} kg`;
     }
 
     formatDateTime(startTimeString, endTimeString) {
