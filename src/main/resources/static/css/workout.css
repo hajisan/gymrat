@@ -601,6 +601,16 @@
    Rest Timer FAB Container (Morphing Pill)
    ============================================ */
 
+/* Transparent click overlay */
+.rest-timer-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1499;
+}
+
 .rest-timer-fab-container {
     position: fixed;
     bottom: calc(var(--safe-bottom) + 80px);
@@ -616,12 +626,15 @@
 }
 
 .rest-timer-fab-container--expanded {
-    width: 100px;
-    height: 340px;
+    width: 80px;
+    height: 240px;
     border-radius: 40px;
     background: var(--card);
-    transform: translateX(-10px);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.rest-timer-fab-container--custom-open {
+    height: 340px;
 }
 
 /* FAB Default State */
@@ -761,24 +774,6 @@
     flex-direction: column;
 }
 
-/* Backdrop overlay when expanded */
-.rest-timer-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    z-index: 1499;
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
 
 .rest-timer-presets {
     display: flex;
@@ -810,19 +805,16 @@
 }
 
 .rest-timer-custom-header {
-    height: 52px;
+    height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
     cursor: pointer;
     background: transparent;
     border: none;
     width: 100%;
     padding: 0;
     color: var(--ink);
-    font-size: 14px;
-    font-weight: 600;
     transition: background 0.15s ease;
 }
 
@@ -831,13 +823,8 @@
 }
 
 .rest-timer-custom-header svg {
-    width: 16px;
-    height: 16px;
-    transition: transform 0.2s ease;
-}
-
-.rest-timer-custom-header--expanded svg {
-    transform: rotate(180deg);
+    width: 24px;
+    height: 24px;
 }
 
 .rest-timer-custom-body {

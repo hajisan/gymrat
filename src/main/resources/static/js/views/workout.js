@@ -364,9 +364,6 @@ export class WorkoutView {
         ];
 
         return `
-            <!-- Backdrop overlay (outside container) -->
-            ${this.showRestTimerModal ? '<div class="rest-timer-backdrop" id="restTimerBackdrop"></div>' : ''}
-
             <div class="rest-timer-fab-container ${this.showRestTimerModal ? 'rest-timer-fab-container--expanded' : ''}"
                  id="restTimerFabContainer">
                 <!-- FAB Default State -->
@@ -408,9 +405,8 @@ export class WorkoutView {
                         <div class="rest-timer-custom">
                             <button class="rest-timer-custom-header ${this.showCustomRestTime ? 'rest-timer-custom-header--expanded' : ''}"
                                     id="toggleCustomRestTime">
-                                <span>Custom</span>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" fill="currentColor">
+                                    <path d="M360-840v-80h240v80H360Zm80 440h80v-240h-80v240Zm40 320q-74 0-139.5-28.5T226-186q-49-49-77.5-114.5T120-440q0-74 28.5-139.5T226-694q49-49 114.5-77.5T480-800q62 0 119 20t107 58l56-56 56 56-56 56q38 50 58 107t20 119q0 74-28.5 139.5T734-186q-49 49-114.5 77.5T480-80Zm0-80q116 0 198-82t82-198q0-116-82-198t-198-82q-116 0-198 82t-82 198q0 116 82 198t198 82Zm0-280Z"/>
                                 </svg>
                             </button>
                             <div class="rest-timer-custom-body ${this.showCustomRestTime ? 'rest-timer-custom-body--expanded' : ''}">
@@ -531,12 +527,6 @@ export class WorkoutView {
         const addNoteBtn = document.getElementById('addNoteBtn');
         if (addNoteBtn) {
             addNoteBtn.addEventListener('click', () => this.openNoteModal());
-        }
-
-        // Rest Timer FAB button
-        const restTimerFab = document.getElementById('restTimerFab');
-        if (restTimerFab) {
-            restTimerFab.addEventListener('click', () => this.openRestTimerModal());
         }
 
         // Exercise modal event listeners
@@ -773,17 +763,15 @@ export class WorkoutView {
     }
 
     setupRestTimerFabListeners() {
-        // FAB click to expand
+        // FAB click to toggle
         const fab = document.getElementById('restTimerFab');
         if (fab) {
-            fab.addEventListener('click', () => this.openRestTimerModal());
-        }
-
-        // Click outside (backdrop) to close
-        const backdrop = document.getElementById('restTimerBackdrop');
-        if (backdrop) {
-            backdrop.addEventListener('click', () => {
-                this.closeRestTimerModal();
+            fab.addEventListener('click', () => {
+                if (this.showRestTimerModal) {
+                    this.closeRestTimerModal();
+                } else {
+                    this.openRestTimerModal();
+                }
             });
         }
 
@@ -1864,6 +1852,13 @@ export class WorkoutView {
     async openRestTimerModal() {
         this.showRestTimerModal = true;
 
+        // Create transparent overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'rest-timer-overlay';
+        overlay.id = 'restTimerOverlay';
+        overlay.addEventListener('click', () => this.closeRestTimerModal());
+        document.body.appendChild(overlay);
+
         const container = document.getElementById('restTimerFabContainer');
         const defaultState = container?.querySelector('.rest-timer-fab-default');
         const expandedState = container?.querySelector('.rest-timer-fab-expanded');
@@ -1883,6 +1878,12 @@ export class WorkoutView {
         const container = document.getElementById('restTimerFabContainer');
         const defaultState = container?.querySelector('.rest-timer-fab-default');
         const expandedState = container?.querySelector('.rest-timer-fab-expanded');
+        const overlay = document.getElementById('restTimerOverlay');
+
+        // Remove overlay
+        if (overlay) {
+            overlay.remove();
+        }
 
         if (container) {
             container.classList.remove('rest-timer-fab-container--expanded');
@@ -1911,13 +1912,16 @@ export class WorkoutView {
     toggleCustomRestTime() {
         this.showCustomRestTime = !this.showCustomRestTime;
 
+        const container = document.getElementById('restTimerFabContainer');
         const header = document.getElementById('toggleCustomRestTime');
         const body = header?.parentElement?.querySelector('.rest-timer-custom-body');
 
         if (this.showCustomRestTime) {
+            container?.classList.add('rest-timer-fab-container--custom-open');
             header?.classList.add('rest-timer-custom-header--expanded');
             body?.classList.add('rest-timer-custom-body--expanded');
         } else {
+            container?.classList.remove('rest-timer-fab-container--custom-open');
             header?.classList.remove('rest-timer-custom-header--expanded');
             body?.classList.remove('rest-timer-custom-body--expanded');
         }
