@@ -15,6 +15,15 @@ export class WorkoutView {
         this.showExerciseModal = false;
         this.showNoteModal = false;
         this.workoutNote = '';
+
+        // Rest Timer State
+        this.restTimerDuration = 120; // seconds (2:00 default)
+        this.restTimerRemaining = 0; // seconds left
+        this.restTimerActive = false; // is running
+        this.restTimerCompleted = false; // just finished
+        this.restTimerInterval = null; // setInterval reference
+        this.showRestTimerModal = false; // modal open/closed
+        this.showCustomRestTime = false; // custom section expanded
     }
 
     async render() {
@@ -28,6 +37,7 @@ export class WorkoutView {
             <div class="workout-view">
                 ${this.renderHeader()}
                 ${this.renderContent()}
+                ${this.renderRestTimerButton()}
                 ${this.showExerciseModal ? this.renderExerciseModal() : ''}
                 ${this.showNoteModal ? this.renderNoteModal() : ''}
             </div>
@@ -335,6 +345,159 @@ export class WorkoutView {
         `;
     }
 
+    renderRestTimerButton() {
+        const timeDisplay = this.formatRestTime(
+            this.restTimerActive ? this.restTimerRemaining : this.restTimerDuration
+        );
+        const progress = this.getTimerProgress();
+        const isComplete = this.restTimerCompleted;
+
+        // SVG circle math: radius=36, circumference=226.19
+        const radius = 36;
+        const circumference = 2 * Math.PI * radius;
+        const offset = circumference - (progress * circumference);
+
+        const presets = [
+            { label: '1:00', seconds: 60 },
+            { label: '2:00', seconds: 120 },
+            { label: '3:00', seconds: 180 }
+        ];
+
+        return `
+            <div class="rest-timer-fab-container ${this.showRestTimerModal ? 'rest-timer-fab-container--expanded' : ''}"
+                 id="restTimerFabContainer">
+                <!-- FAB Default State -->
+                <div class="rest-timer-fab-default ${this.showRestTimerModal ? 'rest-timer-fab-default--hidden' : ''}">
+                    <button class="rest-timer-fab ${isComplete ? 'rest-timer-fab--complete' : ''}"
+                            id="restTimerFab"
+                            aria-label="Rest timer">
+                        <svg class="rest-timer-ring" width="80" height="80" viewBox="0 0 80 80">
+                            <circle cx="40" cy="40" r="${radius}"
+                                    fill="none"
+                                    stroke="rgba(255, 255, 255, 0.15)"
+                                    stroke-width="3"/>
+                            <circle cx="40" cy="40" r="${radius}"
+                                    fill="none"
+                                    stroke="${isComplete ? '#40c463' : '#FFFFFF'}"
+                                    stroke-width="3"
+                                    stroke-dasharray="${circumference}"
+                                    stroke-dashoffset="${offset}"
+                                    stroke-linecap="round"
+                                    transform="rotate(-90 40 40)"
+                                    class="rest-timer-progress"/>
+                        </svg>
+                        <span class="rest-timer-time">${timeDisplay}</span>
+                    </button>
+                </div>
+
+                <!-- FAB Expanded State (Pill Content) -->
+                <div class="rest-timer-fab-expanded ${this.showRestTimerModal ? 'rest-timer-fab-expanded--visible' : ''}">
+                    <div class="rest-timer-expanded-content">
+                        <div class="rest-timer-presets">
+                            ${presets.map(preset => `
+                                <button class="rest-timer-preset"
+                                        data-seconds="${preset.seconds}">
+                                    ${preset.label}
+                                </button>
+                            `).join('')}
+                        </div>
+
+                        <div class="rest-timer-custom">
+                            <button class="rest-timer-custom-header ${this.showCustomRestTime ? 'rest-timer-custom-header--expanded' : ''}"
+                                    id="toggleCustomRestTime">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" fill="currentColor">
+                                    <path d="M360-840v-80h240v80H360Zm80 440h80v-240h-80v240Zm40 320q-74 0-139.5-28.5T226-186q-49-49-77.5-114.5T120-440q0-74 28.5-139.5T226-694q49-49 114.5-77.5T480-800q62 0 119 20t107 58l56-56 56 56-56 56q38 50 58 107t20 119q0 74-28.5 139.5T734-186q-49 49-114.5 77.5T480-80Zm0-80q116 0 198-82t82-198q0-116-82-198t-198-82q-116 0-198 82t-82 198q0 116 82 198t198 82Zm0-280Z"/>
+                                </svg>
+                            </button>
+                            <div class="rest-timer-custom-body ${this.showCustomRestTime ? 'rest-timer-custom-body--expanded' : ''}">
+                                <div class="rest-timer-custom-inputs">
+                                    <input type="number"
+                                           id="customRestMinutes"
+                                           class="rest-timer-custom-input"
+                                           placeholder="0"
+                                           min="0"
+                                           max="59"
+                                           inputmode="numeric">
+                                    <span class="rest-timer-colon">:</span>
+                                    <input type="number"
+                                           id="customRestSeconds"
+                                           class="rest-timer-custom-input"
+                                           placeholder="00"
+                                           min="0"
+                                           max="59"
+                                           inputmode="numeric">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    renderRestTimerModal() {
+        const presets = [
+            { label: '1:00', seconds: 60 },
+            { label: '1:30', seconds: 90 },
+            { label: '2:00', seconds: 120 },
+            { label: '2:30', seconds: 150 },
+            { label: '3:00', seconds: 180 },
+            { label: '4:00', seconds: 240 },
+            { label: '5:00', seconds: 300 }
+        ];
+
+        return `
+            <div class="modal-overlay" id="restTimerModal">
+                <div class="modal rest-timer-modal rest-timer-modal--expand">
+                    <div class="modal-header">
+                        <h2>Hviletid</h2>
+                        <button class="modal-close" id="closeRestTimerModalBtn" aria-label="Luk">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="modal-content">
+                        <div class="rest-timer-presets">
+                            ${presets.map(preset => `
+                                <button class="rest-timer-preset ${preset.seconds === this.restTimerDuration ? 'rest-timer-preset--active' : ''}"
+                                        data-seconds="${preset.seconds}">
+                                    ${preset.label}
+                                </button>
+                            `).join('')}
+                        </div>
+
+                        <div class="rest-timer-custom">
+                            <label for="customRestTime">Brugerdefineret tid (minutter:sekunder)</label>
+                            <div class="rest-timer-custom-inputs">
+                                <input type="number"
+                                       id="customRestMinutes"
+                                       class="rest-timer-custom-input"
+                                       placeholder="0"
+                                       min="0"
+                                       max="59"
+                                       inputmode="numeric">
+                                <span class="rest-timer-colon">:</span>
+                                <input type="number"
+                                       id="customRestSeconds"
+                                       class="rest-timer-custom-input"
+                                       placeholder="00"
+                                       min="0"
+                                       max="59"
+                                       inputmode="numeric">
+                            </div>
+                            <button class="rest-timer-custom-save" id="saveCustomRestTime">
+                                Gem brugerdefineret tid
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     mounted() {
         this.setupEventListeners();
     }
@@ -375,6 +538,9 @@ export class WorkoutView {
         if (this.showNoteModal) {
             this.setupNoteModalListeners();
         }
+
+        // Rest Timer FAB expanded event listeners
+        this.setupRestTimerFabListeners();
 
         // Delete exercise buttons
         document.querySelectorAll('.exercise-delete').forEach(btn => {
@@ -593,6 +759,56 @@ export class WorkoutView {
             noteInput.addEventListener('input', (e) => {
                 charCount.textContent = e.target.value.length;
             });
+        }
+    }
+
+    setupRestTimerFabListeners() {
+        // FAB click to toggle
+        const fab = document.getElementById('restTimerFab');
+        if (fab) {
+            fab.addEventListener('click', () => {
+                if (this.showRestTimerModal) {
+                    this.closeRestTimerModal();
+                } else {
+                    this.openRestTimerModal();
+                }
+            });
+        }
+
+        // Toggle custom section
+        const toggleCustomBtn = document.getElementById('toggleCustomRestTime');
+        if (toggleCustomBtn) {
+            toggleCustomBtn.addEventListener('click', () => this.toggleCustomRestTime());
+        }
+
+        // Preset buttons - auto close after selection
+        document.querySelectorAll('.rest-timer-preset').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const seconds = parseInt(e.currentTarget.dataset.seconds);
+                this.setRestTimerDuration(seconds);
+                await this.closeRestTimerModal();
+            });
+        });
+
+        // Custom time inputs - auto-save on blur
+        const minutesInput = document.getElementById('customRestMinutes');
+        const secondsInput = document.getElementById('customRestSeconds');
+
+        if (minutesInput && secondsInput) {
+            const saveCustomTime = async () => {
+                const minutes = parseInt(minutesInput.value) || 0;
+                const seconds = parseInt(secondsInput.value) || 0;
+                const totalSeconds = (minutes * 60) + seconds;
+
+                if (totalSeconds > 0) {
+                    this.setRestTimerDuration(totalSeconds);
+                    this.showCustomRestTime = false;
+                    await this.closeRestTimerModal();
+                }
+            };
+
+            minutesInput.addEventListener('blur', saveCustomTime);
+            secondsInput.addEventListener('blur', saveCustomTime);
         }
     }
 
@@ -1185,6 +1401,9 @@ export class WorkoutView {
                 });
             }
 
+            // Auto-start rest timer after set is updated
+            this.startRestTimer();
+
         } catch (error) {
             console.error('Failed to update set. Full error:', error);
             console.error('Error response:', error.response);
@@ -1316,6 +1535,9 @@ export class WorkoutView {
                     this.saveNote(setId, note);
                 });
             }
+
+            // Auto-start rest timer after set is saved
+            this.startRestTimer();
 
         } catch (error) {
             console.error('Failed to save set. Full error:', error);
@@ -1524,7 +1746,189 @@ export class WorkoutView {
         });
     }
 
+    // ============================================
+    // Rest Timer Methods
+    // ============================================
+
+    formatRestTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    getTimerProgress() {
+        if (!this.restTimerActive || this.restTimerDuration === 0) {
+            return 0;
+        }
+        return this.restTimerRemaining / this.restTimerDuration;
+    }
+
+    startRestTimer() {
+        // Stop any existing timer
+        this.stopRestTimer();
+
+        // Set remaining time to full duration
+        this.restTimerRemaining = this.restTimerDuration;
+        this.restTimerActive = true;
+        this.restTimerCompleted = false; // Reset completed state
+
+        // Update UI immediately
+        this.updateRestTimerUI();
+
+        // Start countdown
+        this.restTimerInterval = setInterval(() => {
+            this.restTimerRemaining--;
+
+            if (this.restTimerRemaining <= 0) {
+                this.restTimerRemaining = 0;
+                this.restTimerCompleted = true; // Mark as completed
+                this.stopRestTimer();
+                // Timer complete - trigger visual feedback
+                this.onRestTimerComplete();
+            }
+
+            this.updateRestTimerUI();
+        }, 1000);
+    }
+
+    stopRestTimer() {
+        if (this.restTimerInterval) {
+            clearInterval(this.restTimerInterval);
+            this.restTimerInterval = null;
+        }
+        this.restTimerActive = false;
+    }
+
+    resetRestTimer() {
+        this.stopRestTimer();
+        this.restTimerRemaining = 0;
+        this.restTimerCompleted = false;
+        this.updateRestTimerUI();
+    }
+
+    updateRestTimerUI() {
+        const fab = document.getElementById('restTimerFab');
+        if (!fab) return;
+
+        const timeDisplay = this.formatRestTime(
+            this.restTimerActive ? this.restTimerRemaining : this.restTimerDuration
+        );
+        const progress = this.getTimerProgress();
+        const isComplete = this.restTimerCompleted;
+
+        // Update time display
+        const timeElement = fab.querySelector('.rest-timer-time');
+        if (timeElement) {
+            timeElement.textContent = timeDisplay;
+        }
+
+        // Update progress ring
+        const progressCircle = fab.querySelector('.rest-timer-progress');
+        if (progressCircle) {
+            const radius = 36;
+            const circumference = 2 * Math.PI * radius;
+            const offset = circumference - (progress * circumference);
+            progressCircle.setAttribute('stroke-dashoffset', offset);
+            progressCircle.setAttribute('stroke', isComplete ? '#40c463' : '#FFFFFF');
+        }
+
+        // Update complete state
+        if (isComplete) {
+            fab.classList.add('rest-timer-fab--complete');
+        } else {
+            fab.classList.remove('rest-timer-fab--complete');
+        }
+    }
+
+    onRestTimerComplete() {
+        // Vibrate if supported
+        if ('vibrate' in navigator) {
+            navigator.vibrate([200, 100, 200]);
+        }
+
+        // Visual feedback already handled by updateRestTimerUI (green pulse)
+    }
+
+    async openRestTimerModal() {
+        this.showRestTimerModal = true;
+
+        // Create transparent overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'rest-timer-overlay';
+        overlay.id = 'restTimerOverlay';
+        overlay.addEventListener('click', () => this.closeRestTimerModal());
+        document.body.appendChild(overlay);
+
+        const container = document.getElementById('restTimerFabContainer');
+        const defaultState = container?.querySelector('.rest-timer-fab-default');
+        const expandedState = container?.querySelector('.rest-timer-fab-expanded');
+
+        if (container) {
+            container.classList.add('rest-timer-fab-container--expanded');
+        }
+        if (defaultState) {
+            defaultState.classList.add('rest-timer-fab-default--hidden');
+        }
+        if (expandedState) {
+            expandedState.classList.add('rest-timer-fab-expanded--visible');
+        }
+    }
+
+    async closeRestTimerModal() {
+        const container = document.getElementById('restTimerFabContainer');
+        const defaultState = container?.querySelector('.rest-timer-fab-default');
+        const expandedState = container?.querySelector('.rest-timer-fab-expanded');
+        const overlay = document.getElementById('restTimerOverlay');
+
+        // Remove overlay
+        if (overlay) {
+            overlay.remove();
+        }
+
+        if (container) {
+            container.classList.remove('rest-timer-fab-container--expanded');
+        }
+        if (defaultState) {
+            defaultState.classList.remove('rest-timer-fab-default--hidden');
+        }
+        if (expandedState) {
+            expandedState.classList.remove('rest-timer-fab-expanded--visible');
+        }
+
+        // Wait for animation before updating state
+        await new Promise(resolve => setTimeout(resolve, 400));
+        this.showRestTimerModal = false;
+    }
+
+    setRestTimerDuration(seconds) {
+        this.restTimerDuration = seconds;
+
+        // If timer is not running, update display
+        if (!this.restTimerActive) {
+            this.updateRestTimerUI();
+        }
+    }
+
+    toggleCustomRestTime() {
+        this.showCustomRestTime = !this.showCustomRestTime;
+
+        const container = document.getElementById('restTimerFabContainer');
+        const header = document.getElementById('toggleCustomRestTime');
+        const body = header?.parentElement?.querySelector('.rest-timer-custom-body');
+
+        if (this.showCustomRestTime) {
+            container?.classList.add('rest-timer-fab-container--custom-open');
+            header?.classList.add('rest-timer-custom-header--expanded');
+            body?.classList.add('rest-timer-custom-body--expanded');
+        } else {
+            container?.classList.remove('rest-timer-fab-container--custom-open');
+            header?.classList.remove('rest-timer-custom-header--expanded');
+            body?.classList.remove('rest-timer-custom-body--expanded');
+        }
+    }
+
     destroy() {
-        // Cleanup hvis nødvendigt
+        // Stop timer when leaving view
+        this.stopRestTimer();
     }
 }

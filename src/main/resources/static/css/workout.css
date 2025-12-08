@@ -596,3 +596,312 @@
     color: #86868B !important;
     opacity: 0.7;
 }
+
+/* ============================================
+   Rest Timer FAB Container (Morphing Pill)
+   ============================================ */
+
+/* Transparent click overlay */
+.rest-timer-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1499;
+}
+
+.rest-timer-fab-container {
+    position: fixed;
+    bottom: calc(var(--safe-bottom) + 80px);
+    right: var(--space-md);
+    width: 80px;
+    height: 80px;
+    z-index: 1500;
+    border-radius: 50%;
+    background: #1D1D1F;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    transition: all 0.35s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+.rest-timer-fab-container--expanded {
+    width: 80px;
+    height: 240px;
+    border-radius: 40px;
+    background: var(--card);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.rest-timer-fab-container--custom-open {
+    height: 340px;
+}
+
+/* FAB Default State */
+.rest-timer-fab-default {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 1;
+    transition: opacity 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rest-timer-fab-default--hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.rest-timer-fab {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    background: transparent;
+}
+
+.rest-timer-fab:active {
+    transform: scale(0.95);
+}
+
+.rest-timer-fab--complete {
+    background: #40c463 !important;
+    animation: restTimerPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes restTimerPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 8px 32px rgba(64, 196, 99, 0.6);
+    }
+    50% {
+        transform: scale(1.1);
+        box-shadow: 0 12px 48px rgba(64, 196, 99, 0.8);
+    }
+}
+
+.rest-timer-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 80px;
+    height: 80px;
+}
+
+.rest-timer-progress {
+    transition: stroke-dashoffset 0.3s ease, stroke 0.3s ease;
+}
+
+.rest-timer-time {
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    position: relative;
+    z-index: 1;
+    user-select: none;
+}
+
+/* FAB Expanded State (Pill) */
+.rest-timer-fab-expanded {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease 0.15s;
+}
+
+.rest-timer-fab-expanded--visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.rest-timer-expanded-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--stroke);
+    flex-shrink: 0;
+}
+
+.rest-timer-expanded-header h2 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--ink);
+}
+
+.rest-timer-close {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background 0.2s ease;
+    padding: 0;
+}
+
+.rest-timer-close svg {
+    width: 18px;
+    height: 18px;
+}
+
+.rest-timer-close:active {
+    background: var(--bg);
+}
+
+.rest-timer-expanded-content {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.rest-timer-presets {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.rest-timer-preset {
+    height: 60px;
+    border: none;
+    border-bottom: 1px solid var(--stroke);
+    background: transparent;
+    color: var(--ink);
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    cursor: pointer;
+}
+
+.rest-timer-preset:active {
+    background: var(--bg);
+}
+
+.rest-timer-custom {
+    border-top: 1px solid var(--stroke);
+}
+
+.rest-timer-custom-header {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    width: 100%;
+    padding: 0;
+    color: var(--ink);
+    transition: background 0.15s ease;
+}
+
+.rest-timer-custom-header:active {
+    background: var(--bg);
+}
+
+.rest-timer-custom-header svg {
+    width: 24px;
+    height: 24px;
+}
+
+.rest-timer-custom-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.rest-timer-custom-body--expanded {
+    max-height: 300px;
+}
+
+.rest-timer-custom-inputs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 12px 8px;
+}
+
+.rest-timer-custom-input {
+    width: 36px;
+    height: 40px;
+    border: 2px solid var(--stroke);
+    border-radius: 10px;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 17px;
+    font-weight: 600;
+    text-align: center;
+    padding: 0;
+}
+
+.rest-timer-custom-input:focus {
+    outline: none;
+    border-color: var(--cta);
+}
+
+.rest-timer-custom-input::placeholder {
+    color: var(--muted);
+    font-weight: 500;
+}
+
+/* Remove spinner arrows */
+.rest-timer-custom-input::-webkit-outer-spin-button,
+.rest-timer-custom-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.rest-timer-custom-input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.rest-timer-colon {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.rest-timer-custom-save {
+    width: calc(100% - 16px);
+    height: 40px;
+    border-radius: 10px;
+    background: var(--cta);
+    color: var(--cta-ink);
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 8px 12px 8px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+
+.rest-timer-custom-save:active {
+    transform: scale(0.97);
+}
