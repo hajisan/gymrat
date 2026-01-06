@@ -6,7 +6,8 @@
           content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="theme-color" content="#ffffff" />
 
-    <!-- iOS webapp -->
+    <!-- iOS PWA support -->
+    <link rel="manifest" href="manifest.json" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="GymRat" />
@@ -15,8 +16,6 @@
     <!-- Preconnect to Google Fonts for faster loading on iOS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <!-- Import Fugaz One font -->
     <link href="https://fonts.googleapis.com/css2?family=Fugaz+One&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="css/main.css" />
@@ -68,5 +67,14 @@
 
 <!-- JS Modules -->
 <script src="js/app.js" type="module"></script>
+
+<!-- Service Worker Registration -->
+<script>
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/service-worker.js")
+            .catch(err => console.error("SW registration failed:", err));
+    }
+</script>
+
 </body>
 </html>
