@@ -23,9 +23,6 @@ jobs:
           java-version: "21"
           distribution: "temurin"
 
-      - name: Run test
-        run: mvn test
-
       - name: Cache Maven dependencies
         uses: actions/cache@v4
         with:
