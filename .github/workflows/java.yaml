@@ -25,4 +25,13 @@ jobs:
       - name: Run test
         run: mvn test
 
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven- 
 
+      - name: Run test
+        run: mvn test
