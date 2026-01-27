@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -21,7 +20,6 @@ public class HomeServiceImpl implements HomeService {
 
     private static final Logger logger = LoggerFactory.getLogger(HomeServiceImpl.class);
     private final TrainingSessionRepository trainingSessionRepository;
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("d. MMM");
 
     public HomeServiceImpl(TrainingSessionRepository trainingSessionRepository) {
         this.trainingSessionRepository = trainingSessionRepository;
@@ -121,24 +119,6 @@ public class HomeServiceImpl implements HomeService {
                     return new HomeResponse.LastTraining(trainingSessionId, startedAt, completedAt, note, exerciseCount);
                 })
                 .toList();
-    }
-
-    /**
-     * Formaterer dato til brugervenlig visning
-     * - "I dag" hvis det er i dag
-     * - "I går" hvis det er i går
-     * - "8. nov." for ældre datoer
-     */
-    private String formatTrainingDate(LocalDate trainingDate) {
-        LocalDate today = LocalDate.now();
-
-        if (trainingDate.equals(today)) {
-            return "I dag";
-        } else if (trainingDate.equals(today.minusDays(1))) {
-            return "I går";
-        } else {
-            return trainingDate.format(DATE_FORMATTER);
-        }
     }
 
     /**
