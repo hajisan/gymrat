@@ -6,7 +6,7 @@
 
 services:
   app:
-    image: ghcr.io/hajisan/gymrat_backend:latest
+    image: ghcr.io/hajisan/gymrat:latest
     container_name: gymrat-app
     ports:
       - "8080:8080"
