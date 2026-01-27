@@ -1,0 +1,27 @@
+# =========================================
+# DOCKER COMPOSE - Production (Droplet)
+# =========================================
+# Bruger pre-built image fra GHCR
+# =========================================
+
+services:
+  app:
+    image: ghcr.io/hajisan/gymrat_backend:latest
+    container_name: gymrat-app
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - PROD_DB_URL=${DB_URL}
+      - PROD_DB_USERNAME=${DB_USERNAME}
+      - PROD_DB_PASSWORD=${DB_PASSWORD}
+      - AUTH_USERNAME=${AUTH_USERNAME}
+      - AUTH_PASSWORD=${AUTH_PASSWORD}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/login"]
+      interval: 30s
+      timeout: 3s
+      start_period: 60s
+      retries: 3
