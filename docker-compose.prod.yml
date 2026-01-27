@@ -8,8 +8,7 @@ services:
   app:
     image: ghcr.io/hajisan/gymrat:latest
     container_name: gymrat-app
-    ports:
-      - "8080:8080"
+    network_mode: host
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - PROD_DB_URL=${DB_URL}
