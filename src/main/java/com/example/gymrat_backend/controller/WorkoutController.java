@@ -9,6 +9,10 @@ import com.example.gymrat_backend.dto.response.WorkoutSessionResponse;
 import com.example.gymrat_backend.dto.response.WorkoutSetResponse;
 import com.example.gymrat_backend.service.WorkoutService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -109,11 +113,27 @@ public class WorkoutController {
     }
 
     /**
-     * GET /api/workout/history - Hent alle træningssessioner
+     * GET /api/workout/history - Hent alle træningssessioner (bagudkompatibel, uden pagination)
      */
     @GetMapping("/history")
     public ResponseEntity<List<TrainingSessionSummaryResponse>> getWorkoutHistory() {
         List<TrainingSessionSummaryResponse> workouts = workoutService.getAllWorkouts();
+        return ResponseEntity.ok(workouts);
+    }
+
+    /**
+     * GET /api/workout/history/paged - Hent træningssessioner med pagination
+     * @param page sidetal (0-indexed, default 0)
+     * @param size antal per side (default 10, max 50)
+     */
+    @GetMapping("/history/paged")
+    public ResponseEntity<Page<TrainingSessionSummaryResponse>> getWorkoutHistoryPaged(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        // Begræns size til max 50 for at undgå store queries
+        int limitedSize = Math.min(size, 50);
+        Pageable pageable = PageRequest.of(page, limitedSize, Sort.by(Sort.Direction.DESC, "completedAt"));
+        Page<TrainingSessionSummaryResponse> workouts = workoutService.getWorkoutsPaginated(pageable);
         return ResponseEntity.ok(workouts);
     }
 

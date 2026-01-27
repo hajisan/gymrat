@@ -11,6 +11,9 @@ import com.example.gymrat_backend.exception.ResourceNotFoundException;
 import com.example.gymrat_backend.exception.ValidationException;
 import com.example.gymrat_backend.model.*;
 import com.example.gymrat_backend.repository.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -312,17 +315,29 @@ public class WorkoutServiceImpl implements WorkoutService {
 
         // Map til summary response
         return sessions.stream()
-                .map(session -> {
-                    TrainingSessionSummaryResponse summary = new TrainingSessionSummaryResponse();
-                    summary.setTrainingSessionId(session.getTrainingSessionId());
-                    summary.setCreatedAt(session.getCreatedAt());
-                    summary.setStartedAt(session.getStartedAt());
-                    summary.setCompletedAt(session.getCompletedAt());
-                    summary.setNote(session.getNote());
-                    summary.setExerciseCount(session.getExercises() != null ? session.getExercises().size() : 0);
-                    return summary;
-                })
+                .map(this::mapToSummaryResponse)
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<TrainingSessionSummaryResponse> getWorkoutsPaginated(Pageable pageable) {
+        // Hent completed sessions med pagination (sorteret efter completedAt descending)
+        Page<TrainingSession> sessionsPage = trainingSessionRepository.findByCompletedAtIsNotNull(pageable);
+
+        // Map til summary response
+        return sessionsPage.map(this::mapToSummaryResponse);
+    }
+
+    private TrainingSessionSummaryResponse mapToSummaryResponse(TrainingSession session) {
+        TrainingSessionSummaryResponse summary = new TrainingSessionSummaryResponse();
+        summary.setTrainingSessionId(session.getTrainingSessionId());
+        summary.setCreatedAt(session.getCreatedAt());
+        summary.setStartedAt(session.getStartedAt());
+        summary.setCompletedAt(session.getCompletedAt());
+        summary.setNote(session.getNote());
+        summary.setExerciseCount(session.getExercises() != null ? session.getExercises().size() : 0);
+        return summary;
     }
 
     @Override
