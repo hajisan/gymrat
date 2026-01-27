@@ -1879,6 +1879,8 @@ export class WorkoutView {
         const defaultState = container?.querySelector('.rest-timer-fab-default');
         const expandedState = container?.querySelector('.rest-timer-fab-expanded');
         const overlay = document.getElementById('restTimerOverlay');
+        const customHeader = document.getElementById('toggleCustomRestTime');
+        const customBody = customHeader?.parentElement?.querySelector('.rest-timer-custom-body');
 
         // Remove overlay
         if (overlay) {
@@ -1887,6 +1889,7 @@ export class WorkoutView {
 
         if (container) {
             container.classList.remove('rest-timer-fab-container--expanded');
+            container.classList.remove('rest-timer-fab-container--custom-open');
         }
         if (defaultState) {
             defaultState.classList.remove('rest-timer-fab-default--hidden');
@@ -1894,6 +1897,15 @@ export class WorkoutView {
         if (expandedState) {
             expandedState.classList.remove('rest-timer-fab-expanded--visible');
         }
+
+        // Reset custom time section
+        if (customHeader) {
+            customHeader.classList.remove('rest-timer-custom-header--expanded');
+        }
+        if (customBody) {
+            customBody.classList.remove('rest-timer-custom-body--expanded');
+        }
+        this.showCustomRestTime = false;
 
         // Wait for animation before updating state
         await new Promise(resolve => setTimeout(resolve, 400));
