@@ -7,6 +7,8 @@ import com.example.gymrat_backend.dto.response.TrainingSessionSummaryResponse;
 import com.example.gymrat_backend.dto.response.WorkoutExerciseResponse;
 import com.example.gymrat_backend.dto.response.WorkoutSessionResponse;
 import com.example.gymrat_backend.dto.response.WorkoutSetResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -53,9 +55,14 @@ public interface WorkoutService {
     WorkoutExerciseResponse.LastPerformedData getLastPerformedData(Long exerciseId);
 
     /**
-     * Hent alle træningssessioner (historik)
+     * Hent alle træningssessioner (historik) - uden pagination (bagudkompatibel)
      */
     List<TrainingSessionSummaryResponse> getAllWorkouts();
+
+    /**
+     * Hent træningssessioner med pagination
+     */
+    Page<TrainingSessionSummaryResponse> getWorkoutsPaginated(Pageable pageable);
 
     /**
      * Slet en træningssession

@@ -1,6 +1,8 @@
 package com.example.gymrat_backend.repository;
 
 import com.example.gymrat_backend.model.TrainingSession;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
@@ -10,11 +12,14 @@ public interface TrainingSessionRepository extends JpaRepository<TrainingSession
 
     // Find training sessions mellem to datoer
     List<TrainingSession> findByCreatedAtBetween(LocalDate startDate, LocalDate endDate);
-    
+
     // Find training sessions efter en dato (sorteret)
     List<TrainingSession> findByCreatedAtAfterOrderByCreatedAtDesc(LocalDate date);
 
     // Find all completed training sessions sorteret descending (nyeste først)
     List<TrainingSession> findByCompletedAtIsNotNullOrderByCompletedAtDesc();
+
+    // Pagineret version af completed sessions
+    Page<TrainingSession> findByCompletedAtIsNotNull(Pageable pageable);
 
 }

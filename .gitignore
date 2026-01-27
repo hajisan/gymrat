@@ -38,3 +38,12 @@ src/main/resources/static/icons/.DS_Store
 src/main/.DS_Store
 src/.DS_Store
 .DS_Store
+
+### Postman ###
+.postman/
+postman/
+
+### Environment files ###
+.env
+.env.local
+.env.production

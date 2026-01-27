@@ -8,16 +8,19 @@ import com.example.gymrat_backend.repository.TrainingSessionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
 public class HomeServiceImpl implements HomeService {
 
+    private static final Logger logger = LoggerFactory.getLogger(HomeServiceImpl.class);
+    private static final int RECENT_TRAININGS_LIMIT = 4;
     private final TrainingSessionRepository trainingSessionRepository;
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("d. MMM");
 
     public HomeServiceImpl(TrainingSessionRepository trainingSessionRepository) {
         this.trainingSessionRepository = trainingSessionRepository;
@@ -38,7 +41,7 @@ public class HomeServiceImpl implements HomeService {
             HomeResponse response = new HomeResponse(weekStats, recentTrainings, trainingDays);
             return response;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error getting home summary", e);
             throw e;
         }
     }
@@ -90,7 +93,7 @@ public class HomeServiceImpl implements HomeService {
     }
 
     /**
-     * Henter de seneste 4 træninger med formateret dato og note
+     * Henter de seneste træninger med formateret dato og note
      * Returnerer kun COMPLETED workouts (hvor completedAt er sat)
      */
     private List<HomeResponse.LastTraining> getRecentTrainings() {
@@ -99,10 +102,10 @@ public class HomeServiceImpl implements HomeService {
         List<TrainingSession> recentSessions = trainingSessionRepository
                 .findByCreatedAtAfterOrderByCreatedAtDesc(today.minusMonths(3));
 
-        // Filtrér for kun completed sessions (completedAt er ikke null) og tag de første 4
+        // Filtrér for kun completed sessions (completedAt er ikke null)
         List<TrainingSession> completedSessions = recentSessions.stream()
                 .filter(session -> session.getCompletedAt() != null)
-                .limit(4)
+                .limit(RECENT_TRAININGS_LIMIT)
                 .toList();
 
         // Map til LastTraining objekter
@@ -120,24 +123,6 @@ public class HomeServiceImpl implements HomeService {
     }
 
     /**
-     * Formaterer dato til brugervenlig visning
-     * - "I dag" hvis det er i dag
-     * - "I går" hvis det er i går
-     * - "8. nov." for ældre datoer
-     */
-    private String formatTrainingDate(LocalDate trainingDate) {
-        LocalDate today = LocalDate.now();
-
-        if (trainingDate.equals(today)) {
-            return "I dag";
-        } else if (trainingDate.equals(today.minusDays(1))) {
-            return "I går";
-        } else {
-            return trainingDate.format(DATE_FORMATTER);
-        }
-    }
-
-    /**
      * Henter træningsdage med volumen og session ID (sidste år / 365 dage)
      * Returnerer map med dato -> TrainingDayData (sessionId + volumen)
      * Returnerer kun COMPLETED workouts
@@ -146,31 +131,21 @@ public class HomeServiceImpl implements HomeService {
         LocalDate today = LocalDate.now();
         LocalDate monthAgo = today.minusDays(365);
 
-        System.out.println("=== getTrainingDays() called ===");
-        System.out.println("Fetching sessions between " + monthAgo + " and " + today);
-
         // Hent alle sessions fra sidste år
         List<TrainingSession> sessions = trainingSessionRepository
                 .findByCreatedAtBetween(monthAgo, today);
-
-        System.out.println("Found " + sessions.size() + " total sessions");
 
         // Beregn volumen per dag og gem session ID
         java.util.Map<String, HomeResponse.TrainingDayData> trainingDays = new java.util.HashMap<>();
 
         for (TrainingSession session : sessions) {
-            System.out.println("Processing session ID: " + session.getTrainingSessionId()
-                + ", createdAt: " + session.getCreatedAt()
-                + ", completedAt: " + session.getCompletedAt());
             // Spring over sessions der ikke er completed
             if (session.getCompletedAt() == null) {
-                System.out.println("Skipping incomplete session: " + session.getTrainingSessionId());
                 continue;
             }
 
             // Brug completedAt dato for kalenderen (ikke createdAt)
             String dateKey = session.getCompletedAt().toLocalDate().toString();
-            System.out.println("Adding session " + session.getTrainingSessionId() + " to calendar on date: " + dateKey);
             double dayVolume = 0.0;
 
             // Beregn volumen for denne session

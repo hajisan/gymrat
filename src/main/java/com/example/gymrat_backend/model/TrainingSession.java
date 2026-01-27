@@ -10,8 +10,9 @@ import java.util.List;
 // Training session for en given dato
 
 @Entity
-@Table(name = "training_session")
-
+@Table(name = "training_session", indexes = {
+    @Index(name = "idx_completed_at", columnList = "completed_at")
+})
 public class TrainingSession {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "training_session_id")

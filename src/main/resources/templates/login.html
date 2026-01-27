@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="da" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Login - GymRat</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+    <div class="login-view">
+        <div class="login-container">
+            <div class="login-card">
+                <div th:if="${param.error}" class="error-message">
+                    Forkert brugernavn eller adgangskode
+                </div>
+
+                <div th:if="${param.logout}" class="logout-message">
+                    Du er nu logget ud
+                </div>
+
+                <form th:action="@{/login}" method="post">
+                    <div class="form-group">
+                        <label class="form-label" for="username">Brugernavn</label>
+                        <input type="text" id="username" name="username" class="form-input"
+                               placeholder="Indtast brugernavn" required autofocus>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="password">Adgangskode</label>
+                        <input type="password" id="password" name="password" class="form-input"
+                               placeholder="Indtast adgangskode" required>
+                    </div>
+
+                    <div class="remember-me">
+                        <input type="checkbox" id="remember-me" name="remember-me" checked>
+                        <label for="remember-me">Husk mig i 90 dage</label>
+                    </div>
+
+                    <button type="submit" class="login-btn">Log ind</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
