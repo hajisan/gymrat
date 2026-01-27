@@ -4,6 +4,7 @@
  */
 
 import { api } from '../api.js';
+import { DAYS_DA, MONTHS_SHORT_DA } from '../utils.js';
 
 export class HistoryView {
     constructor() {
@@ -88,12 +89,10 @@ export class HistoryView {
     formatDateTime(startTimeString, endTimeString) {
         const startTime = new Date(startTimeString);
         const endTime = new Date(endTimeString);
-        const days = ['Søndag', 'Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lørdag'];
-        const months = ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
 
-        const dayName = days[startTime.getDay()];
+        const dayName = DAYS_DA[startTime.getDay()];
         const day = startTime.getDate();
-        const month = months[startTime.getMonth()];
+        const month = MONTHS_SHORT_DA[startTime.getMonth()];
         const year = startTime.getFullYear();
 
         const startHours = String(startTime.getHours()).padStart(2, '0');

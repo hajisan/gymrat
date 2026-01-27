@@ -6,6 +6,7 @@
 import { api } from '../api.js';
 import { state } from '../state.js';
 import { router } from '../router.js';
+import { DAYS_DA, MONTHS_SHORT_DA, MONTHS_TITLE_DA } from '../utils.js';
 
 export class HomeView {
     constructor() {
@@ -242,8 +243,7 @@ export class HomeView {
     }
 
     getMonthName(monthIndex) {
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Maj', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'];
-        return months[monthIndex];
+        return MONTHS_TITLE_DA[monthIndex];
     }
 
     formatCalendarTooltip(day) {
@@ -366,12 +366,10 @@ export class HomeView {
     formatDateTime(startTimeString, endTimeString) {
         const startTime = new Date(startTimeString);
         const endTime = new Date(endTimeString);
-        const days = ['Søndag', 'Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lørdag'];
-        const months = ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
 
-        const dayName = days[startTime.getDay()];
+        const dayName = DAYS_DA[startTime.getDay()];
         const day = startTime.getDate();
-        const month = months[startTime.getMonth()];
+        const month = MONTHS_SHORT_DA[startTime.getMonth()];
         const year = startTime.getFullYear();
 
         const startHours = String(startTime.getHours()).padStart(2, '0');
