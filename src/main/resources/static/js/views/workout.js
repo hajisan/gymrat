@@ -6,6 +6,7 @@
 import { api } from '../api.js';
 import { state } from '../state.js';
 import { router } from '../router.js';
+import { DAYS_DA, MONTHS_LONG_DA } from '../utils.js';
 
 export class WorkoutView {
     constructor() {
@@ -1663,11 +1664,7 @@ export class WorkoutView {
     }
 
     formatDate(date) {
-        const days = ['Søndag', 'Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lørdag'];
-        const months = ['januar', 'februar', 'marts', 'april', 'maj', 'juni',
-            'juli', 'august', 'september', 'oktober', 'november', 'december'];
-
-        return `${days[date.getDay()]} ${date.getDate()}. ${months[date.getMonth()]}`;
+        return `${DAYS_DA[date.getDay()]} ${date.getDate()}. ${MONTHS_LONG_DA[date.getMonth()]}`;
     }
 
     formatTime(date) {

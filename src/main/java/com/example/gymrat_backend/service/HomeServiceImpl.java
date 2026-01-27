@@ -19,6 +19,7 @@ import java.util.List;
 public class HomeServiceImpl implements HomeService {
 
     private static final Logger logger = LoggerFactory.getLogger(HomeServiceImpl.class);
+    private static final int RECENT_TRAININGS_LIMIT = 4;
     private final TrainingSessionRepository trainingSessionRepository;
 
     public HomeServiceImpl(TrainingSessionRepository trainingSessionRepository) {
@@ -92,7 +93,7 @@ public class HomeServiceImpl implements HomeService {
     }
 
     /**
-     * Henter de seneste 4 træninger med formateret dato og note
+     * Henter de seneste træninger med formateret dato og note
      * Returnerer kun COMPLETED workouts (hvor completedAt er sat)
      */
     private List<HomeResponse.LastTraining> getRecentTrainings() {
@@ -101,10 +102,10 @@ public class HomeServiceImpl implements HomeService {
         List<TrainingSession> recentSessions = trainingSessionRepository
                 .findByCreatedAtAfterOrderByCreatedAtDesc(today.minusMonths(3));
 
-        // Filtrér for kun completed sessions (completedAt er ikke null) og tag de første 4
+        // Filtrér for kun completed sessions (completedAt er ikke null)
         List<TrainingSession> completedSessions = recentSessions.stream()
                 .filter(session -> session.getCompletedAt() != null)
-                .limit(4)
+                .limit(RECENT_TRAININGS_LIMIT)
                 .toList();
 
         // Map til LastTraining objekter
