@@ -65,20 +65,13 @@ export class StatsView {
 
     async loadData() {
         try {
-            // Load workout summaries first
-            const workoutSummaries = await api.request('/workout/history');
-
-            // Fetch detailed workout data for each session (includes exercises and sets)
-            const detailedWorkouts = await Promise.all(
-                workoutSummaries.map(summary =>
-                    api.request(`/workout/${summary.trainingSessionId}`)
-                )
-            );
+            const [detailedWorkouts, exercises] = await Promise.all([
+                api.request('/workout/history/detailed'),
+                api.request('/exercises')
+            ]);
 
             this.workouts = detailedWorkouts;
-
-            // Load exercises
-            this.exercises = await api.request('/exercises');
+            this.exercises = exercises;
         } catch (error) {
             console.error('Failed to load stats data:', error);
             this.workouts = [];

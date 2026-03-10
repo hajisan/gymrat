@@ -321,6 +321,49 @@ public class WorkoutServiceImpl implements WorkoutService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<WorkoutSessionResponse> getAllWorkoutsDetailed() {
+        // Query 1: sessions + exercises (kan ikke JOIN FETCH sets samtidig - MultipleBagFetchException)
+        List<TrainingSession> sessions = trainingSessionRepository.findAllCompletedWithExercises();
+        // Query 2: fylder Hibernate's 1st-level cache med sets, så iteration nedenfor ikke laver N+1
+        if (!sessions.isEmpty()) {
+            performedExerciseRepository.fetchSetsForSessions(sessions);
+        }
+        return sessions.stream()
+                .map(this::mapToDetailedSessionResponse)
+                .toList();
+    }
+
+    private WorkoutSessionResponse mapToDetailedSessionResponse(TrainingSession session) {
+        WorkoutSessionResponse response = new WorkoutSessionResponse();
+        response.setTrainingSessionId(session.getTrainingSessionId());
+        response.setStartedAt(session.getStartedAt());
+        response.setCompletedAt(session.getCompletedAt());
+        response.setNote(session.getNote());
+
+        List<WorkoutExerciseResponse> exerciseResponses = session.getExercises().stream()
+                .map(pe -> {
+                    WorkoutExerciseResponse exResponse = new WorkoutExerciseResponse();
+                    exResponse.setPerformedExerciseId(pe.getPerformedExerciseId());
+                    exResponse.setExerciseId(pe.getExercise().getExerciseId());
+                    exResponse.setExerciseName(pe.getExercise().getName());
+                    exResponse.setTargetMuscleGroup(pe.getExercise().getTargetMuscleGroup());
+                    exResponse.setEquipment(pe.getExercise().getEquipment());
+                    exResponse.setExerciseType(pe.getExercise().getExerciseType());
+                    exResponse.setOrderNumber(pe.getOrderNumber());
+                    exResponse.setSets(pe.getSets().stream()
+                            .map(s -> mapToWorkoutSetResponse(s, false))
+                            .toList());
+                    // lastPerformed er ikke nødvendigt til stats - undlades bevidst
+                    return exResponse;
+                })
+                .toList();
+
+        response.setExercises(exerciseResponses);
+        return response;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Page<TrainingSessionSummaryResponse> getWorkoutsPaginated(Pageable pageable) {
         // Hent completed sessions med pagination (sorteret efter completedAt descending)
         Page<TrainingSession> sessionsPage = trainingSessionRepository.findByCompletedAtIsNotNull(pageable);
