@@ -65,20 +65,13 @@ export class StatsView {
 
     async loadData() {
         try {
-            // Load workout summaries first
-            const workoutSummaries = await api.request('/workout/history');
-
-            // Fetch detailed workout data for each session (includes exercises and sets)
-            const detailedWorkouts = await Promise.all(
-                workoutSummaries.map(summary =>
-                    api.request(`/workout/${summary.trainingSessionId}`)
-                )
-            );
+            const [detailedWorkouts, exercises] = await Promise.all([
+                api.request('/workout/history/detailed'),
+                api.request('/exercises')
+            ]);
 
             this.workouts = detailedWorkouts;
-
-            // Load exercises
-            this.exercises = await api.request('/exercises');
+            this.exercises = exercises;
         } catch (error) {
             console.error('Failed to load stats data:', error);
             this.workouts = [];
@@ -303,55 +296,67 @@ export class StatsView {
     }
 
     mounted() {
-        // Add exercise selector button listener
         const selectorBtn = document.getElementById('exerciseSelectorBtn');
         const modal = document.getElementById('exerciseModal');
 
         if (selectorBtn && modal) {
             selectorBtn.addEventListener('click', () => {
                 modal.style.display = 'flex';
-                // Prevent body scroll when modal is open
                 document.body.style.overflow = 'hidden';
             });
         }
 
-        // Add close button listener
         const closeBtn = document.getElementById('closeExerciseModal');
-        if (closeBtn && modal) {
-            closeBtn.addEventListener('click', () => {
-                this.closeExerciseModal();
-            });
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => this.closeExerciseModal());
         }
 
-        // Add overlay click listener to close modal
         if (modal) {
             modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    this.closeExerciseModal();
-                }
+                if (e.target === modal) this.closeExerciseModal();
             });
         }
 
-        // Add exercise option listeners
-        const exerciseOptions = document.querySelectorAll('.exercise-option');
-        exerciseOptions.forEach(option => {
-            option.addEventListener('click', async () => {
+        // Event delegation — én listener på modal-content håndterer alle øvelsesskift
+        // uden re-render eller nye API-kald
+        const modalContent = modal?.querySelector('.modal-content');
+        if (modalContent) {
+            modalContent.addEventListener('click', (e) => {
+                const option = e.target.closest('.exercise-option');
+                if (!option) return;
+
                 const exerciseId = parseInt(option.dataset.exerciseId);
                 this.selectedExerciseId = exerciseId;
-
-                // Close modal
                 this.closeExerciseModal();
 
-                // Update the view
-                const contentElement = document.getElementById('app-content');
-                if (contentElement) {
-                    contentElement.innerHTML = await this.render();
-                    this.mounted();
+                // Opdater kun selector-knappens tekst
+                const selectedExercise = this.exercises.find(ex => ex.exerciseId === exerciseId);
+                if (selectedExercise) {
+                    const btnSpan = selectorBtn?.querySelector('span');
+                    if (btnSpan) btnSpan.textContent = selectedExercise.name;
                 }
-            });
-        });
 
-        // Initialize chart
+                // Re-render kun modal-indholdet så selected-state er korrekt næste gang den åbnes
+                modalContent.innerHTML = this.exercises.map(ex => `
+                    <button type="button"
+                        class="exercise-option ${ex.exerciseId === exerciseId ? 'exercise-option--selected' : ''}"
+                        data-exercise-id="${ex.exerciseId}">
+                        <div class="exercise-option-info">
+                            <span class="exercise-option-name">${ex.name}</span>
+                            ${ex.equipment ? `<span class="exercise-option-equipment">${ex.equipment}</span>` : ''}
+                        </div>
+                        ${ex.exerciseId === exerciseId ? `
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>` : ''}
+                    </button>
+                `).join('');
+
+                // Opdater kun chart — ingen API-kald, ingen fuld re-render
+                this.updateChart();
+            });
+        }
+
         if (this.selectedExerciseId) {
             this.updateChart();
         }

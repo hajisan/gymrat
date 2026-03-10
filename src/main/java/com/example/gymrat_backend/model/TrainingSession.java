@@ -11,7 +11,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "training_session", indexes = {
-    @Index(name = "idx_completed_at", columnList = "completed_at")
+    @Index(name = "idx_completed_at", columnList = "completed_at"),
+    @Index(name = "idx_created_at", columnList = "created_at")
 })
 public class TrainingSession {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -122,6 +122,16 @@ public class WorkoutController {
     }
 
     /**
+     * GET /api/workout/history/detailed - Hent alle completed sessioner med fuld exercises+sets data (til stats)
+     * Returnerer alt i én response - undgår N+1 HTTP calls fra frontend
+     */
+    @GetMapping("/history/detailed")
+    public ResponseEntity<List<WorkoutSessionResponse>> getWorkoutHistoryDetailed() {
+        List<WorkoutSessionResponse> workouts = workoutService.getAllWorkoutsDetailed();
+        return ResponseEntity.ok(workouts);
+    }
+
+    /**
      * GET /api/workout/history/paged - Hent træningssessioner med pagination
      * @param page sidetal (0-indexed, default 0)
      * @param size antal per side (default 10, max 50)

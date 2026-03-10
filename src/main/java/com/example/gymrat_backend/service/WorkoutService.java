@@ -60,6 +60,11 @@ public interface WorkoutService {
     List<TrainingSessionSummaryResponse> getAllWorkouts();
 
     /**
+     * Hent alle completed sessioner med fuld exercises+sets data til stats view (1 DB-query)
+     */
+    List<WorkoutSessionResponse> getAllWorkoutsDetailed();
+
+    /**
      * Hent træningssessioner med pagination
      */
     Page<TrainingSessionSummaryResponse> getWorkoutsPaginated(Pageable pageable);

@@ -4,6 +4,7 @@ import com.example.gymrat_backend.dto.response.HomeResponse;
 import com.example.gymrat_backend.model.PerformedExercise;
 import com.example.gymrat_backend.model.PerformedSet;
 import com.example.gymrat_backend.model.TrainingSession;
+import com.example.gymrat_backend.repository.PerformedExerciseRepository;
 import com.example.gymrat_backend.repository.TrainingSessionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,8 +12,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 @Service
 @Transactional(readOnly = true)
@@ -20,70 +24,66 @@ public class HomeServiceImpl implements HomeService {
 
     private static final Logger logger = LoggerFactory.getLogger(HomeServiceImpl.class);
     private static final int RECENT_TRAININGS_LIMIT = 4;
-    private final TrainingSessionRepository trainingSessionRepository;
 
-    public HomeServiceImpl(TrainingSessionRepository trainingSessionRepository) {
+    private final TrainingSessionRepository trainingSessionRepository;
+    private final PerformedExerciseRepository performedExerciseRepository;
+
+    public HomeServiceImpl(TrainingSessionRepository trainingSessionRepository,
+                           PerformedExerciseRepository performedExerciseRepository) {
         this.trainingSessionRepository = trainingSessionRepository;
+        this.performedExerciseRepository = performedExerciseRepository;
     }
 
     @Override
     public HomeResponse getHomeSummary() {
         try {
-            // Beregn ugestatistik (sidste 7 dage)
-            HomeResponse.WeekStats weekStats = calculateWeekStats();
+            LocalDate today = LocalDate.now();
+            LocalDate yearAgo = today.minusDays(365);
 
-            // Hent seneste 4 træninger
-            List<HomeResponse.LastTraining> recentTrainings = getRecentTrainings();
+            // Query 1: hent alle completed sessions (365 dage) med exercises i én DB-query
+            List<TrainingSession> sessions = trainingSessionRepository
+                    .findCompletedByCreatedAtBetweenWithExercises(yearAgo, today);
 
-            // Hent træningsdage for kalender (sidste år)
-            java.util.Map<String, HomeResponse.TrainingDayData> trainingDays = getTrainingDays();
+            // Query 2: fyld Hibernate's cache med sets for alle exercises (undgår N+1 lazy loading)
+            if (!sessions.isEmpty()) {
+                performedExerciseRepository.fetchSetsForSessions(sessions);
+            }
 
-            HomeResponse response = new HomeResponse(weekStats, recentTrainings, trainingDays);
-            return response;
+            // Alle tre metoder bruger det allerede-indlæste dataset — ingen yderligere DB-kald
+            HomeResponse.WeekStats weekStats = calculateWeekStats(sessions);
+            List<HomeResponse.LastTraining> recentTrainings = getRecentTrainings(sessions);
+            Map<String, HomeResponse.TrainingDayData> trainingDays = getTrainingDays(sessions);
+
+            return new HomeResponse(weekStats, recentTrainings, trainingDays);
         } catch (Exception e) {
             logger.error("Error getting home summary", e);
             throw e;
         }
     }
 
-    /**
-     * Beregner statistik for den aktuelle uge (mandag til søndag)
-     * Inkluderer kun COMPLETED workouts
-     */
-    private HomeResponse.WeekStats calculateWeekStats() {
+    private HomeResponse.WeekStats calculateWeekStats(List<TrainingSession> allSessions) {
         LocalDate today = LocalDate.now();
-
-        // Find den seneste mandag (start af ugen)
-        LocalDate startOfWeek = today.with(java.time.DayOfWeek.MONDAY);
-
-        // Hvis vi er før mandag (søndag), så er startOfWeek næste mandag - vi vil have forrige mandag
+        LocalDate startOfWeek = today.with(DayOfWeek.MONDAY);
         if (startOfWeek.isAfter(today)) {
             startOfWeek = startOfWeek.minusWeeks(1);
         }
 
-        // Hent alle sessions fra denne uge (mandag til nu)
-        List<TrainingSession> sessions = trainingSessionRepository.findByCreatedAtBetween(startOfWeek, today);
+        final LocalDate weekStart = startOfWeek;
 
-        // Filtrér for kun completed sessions
-        List<TrainingSession> completedSessions = sessions.stream()
-                .filter(session -> session.getCompletedAt() != null)
+        List<TrainingSession> weekSessions = allSessions.stream()
+                .filter(s -> !s.getCreatedAt().isBefore(weekStart) && !s.getCreatedAt().isAfter(today))
                 .toList();
 
-        int totalTrainings = completedSessions.size();
+        int totalTrainings = weekSessions.size();
         int totalSets = 0;
         double totalVolumeKg = 0.0;
 
-        // Gennemgå alle sessions og beregn sets + volumen
-        for (TrainingSession session : completedSessions) {
+        for (TrainingSession session : weekSessions) {
             for (PerformedExercise exercise : session.getExercises()) {
                 for (PerformedSet set : exercise.getSets()) {
                     totalSets++;
-
-                    // Beregn volumen: vægt * reps (ignorer duration-baserede øvelser)
                     if (set.getWeight() != null && set.getReps() != null) {
-                        double weight = set.getWeight().doubleValue();
-                        int reps = set.getReps();
-                        totalVolumeKg += (weight * reps);
+                        totalVolumeKg += set.getWeight().doubleValue() * set.getReps();
                     }
                 }
             }
@@ -92,63 +92,26 @@ public class HomeServiceImpl implements HomeService {
         return new HomeResponse.WeekStats(totalTrainings, totalSets, totalVolumeKg);
     }
 
-    /**
-     * Henter de seneste træninger med formateret dato og note
-     * Returnerer kun COMPLETED workouts (hvor completedAt er sat)
-     */
-    private List<HomeResponse.LastTraining> getRecentTrainings() {
-        // Hent alle sessions sorteret efter dato (nyeste først)
-        LocalDate today = LocalDate.now();
-        List<TrainingSession> recentSessions = trainingSessionRepository
-                .findByCreatedAtAfterOrderByCreatedAtDesc(today.minusMonths(3));
-
-        // Filtrér for kun completed sessions (completedAt er ikke null)
-        List<TrainingSession> completedSessions = recentSessions.stream()
-                .filter(session -> session.getCompletedAt() != null)
+    private List<HomeResponse.LastTraining> getRecentTrainings(List<TrainingSession> allSessions) {
+        return allSessions.stream()
                 .limit(RECENT_TRAININGS_LIMIT)
-                .toList();
-
-        // Map til LastTraining objekter
-        return completedSessions.stream()
-                .map(session -> {
-                    Long trainingSessionId = session.getTrainingSessionId();
-                    String startedAt = session.getStartedAt() != null ? session.getStartedAt().toString() : null;
-                    String completedAt = session.getCompletedAt() != null ? session.getCompletedAt().toString() : null;
-                    String note = session.getNote();
-                    Integer exerciseCount = session.getExercises() != null ? session.getExercises().size() : 0;
-
-                    return new HomeResponse.LastTraining(trainingSessionId, startedAt, completedAt, note, exerciseCount);
-                })
+                .map(session -> new HomeResponse.LastTraining(
+                        session.getTrainingSessionId(),
+                        session.getStartedAt() != null ? session.getStartedAt().toString() : null,
+                        session.getCompletedAt() != null ? session.getCompletedAt().toString() : null,
+                        session.getNote(),
+                        session.getExercises() != null ? session.getExercises().size() : 0
+                ))
                 .toList();
     }
 
-    /**
-     * Henter træningsdage med volumen og session ID (sidste år / 365 dage)
-     * Returnerer map med dato -> TrainingDayData (sessionId + volumen)
-     * Returnerer kun COMPLETED workouts
-     */
-    private java.util.Map<String, HomeResponse.TrainingDayData> getTrainingDays() {
-        LocalDate today = LocalDate.now();
-        LocalDate monthAgo = today.minusDays(365);
+    private Map<String, HomeResponse.TrainingDayData> getTrainingDays(List<TrainingSession> allSessions) {
+        Map<String, HomeResponse.TrainingDayData> trainingDays = new HashMap<>();
 
-        // Hent alle sessions fra sidste år
-        List<TrainingSession> sessions = trainingSessionRepository
-                .findByCreatedAtBetween(monthAgo, today);
-
-        // Beregn volumen per dag og gem session ID
-        java.util.Map<String, HomeResponse.TrainingDayData> trainingDays = new java.util.HashMap<>();
-
-        for (TrainingSession session : sessions) {
-            // Spring over sessions der ikke er completed
-            if (session.getCompletedAt() == null) {
-                continue;
-            }
-
-            // Brug completedAt dato for kalenderen (ikke createdAt)
+        for (TrainingSession session : allSessions) {
             String dateKey = session.getCompletedAt().toLocalDate().toString();
             double dayVolume = 0.0;
 
-            // Beregn volumen for denne session
             for (PerformedExercise exercise : session.getExercises()) {
                 for (PerformedSet set : exercise.getSets()) {
                     if (set.getWeight() != null && set.getReps() != null) {
@@ -157,7 +120,6 @@ public class HomeServiceImpl implements HomeService {
                 }
             }
 
-            // Hvis der allerede er en session denne dag, summer volumen
             if (trainingDays.containsKey(dateKey)) {
                 HomeResponse.TrainingDayData existing = trainingDays.get(dateKey);
                 existing.setVolumeKg(existing.getVolumeKg() + dayVolume);

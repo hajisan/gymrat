@@ -12,6 +12,7 @@ import com.example.gymrat_backend.exception.ValidationException;
 import com.example.gymrat_backend.model.*;
 import com.example.gymrat_backend.repository.*;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -219,27 +220,19 @@ public class WorkoutServiceImpl implements WorkoutService {
     // Overloaded method that excludes current session
     @Transactional(readOnly = true)
     public WorkoutExerciseResponse.LastPerformedData getLastPerformedData(Long exerciseId, Long excludeSessionId) {
-        // Hent alle performed exercises for denne exercise (ekskl. current session)
-        List<PerformedExercise> pastPerformances = performedExerciseRepository.findByExerciseExerciseId(exerciseId)
-                .stream()
-                .filter(pe -> excludeSessionId == null || !pe.getSession().getTrainingSessionId().equals(excludeSessionId))
-                .toList();
-
-        if (pastPerformances.isEmpty()) {
-            return null; // Ingen tidligere data
-        }
-
-        // Hent seneste performance (based on session ID, since multiple sessions can happen same day)
-        PerformedExercise lastPerformance = pastPerformances.stream()
-                .max((pe1, pe2) -> pe1.getSession().getTrainingSessionId().compareTo(pe2.getSession().getTrainingSessionId()))
-                .orElse(null);
-
-        if (lastPerformance == null || lastPerformance.getSets().isEmpty()) {
+        if (excludeSessionId == null) {
             return null;
         }
 
-        // Beregn gennemsnit af sets fra sidste performance
-        List<PerformedSet> lastSets = lastPerformance.getSets();
+        // Én query: henter kun seneste performance med sets — ingen in-memory filtrering
+        List<PerformedExercise> results = performedExerciseRepository.findLatestForExercise(
+                exerciseId, excludeSessionId, PageRequest.of(0, 1));
+
+        if (results.isEmpty() || results.get(0).getSets().isEmpty()) {
+            return null;
+        }
+
+        List<PerformedSet> lastSets = results.get(0).getSets();
 
         double avgWeight = lastSets.stream()
                 .filter(s -> s.getWeight() != null)
@@ -317,6 +310,49 @@ public class WorkoutServiceImpl implements WorkoutService {
         return sessions.stream()
                 .map(this::mapToSummaryResponse)
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<WorkoutSessionResponse> getAllWorkoutsDetailed() {
+        // Query 1: sessions + exercises (kan ikke JOIN FETCH sets samtidig - MultipleBagFetchException)
+        List<TrainingSession> sessions = trainingSessionRepository.findAllCompletedWithExercises();
+        // Query 2: fylder Hibernate's 1st-level cache med sets, så iteration nedenfor ikke laver N+1
+        if (!sessions.isEmpty()) {
+            performedExerciseRepository.fetchSetsForSessions(sessions);
+        }
+        return sessions.stream()
+                .map(this::mapToDetailedSessionResponse)
+                .toList();
+    }
+
+    private WorkoutSessionResponse mapToDetailedSessionResponse(TrainingSession session) {
+        WorkoutSessionResponse response = new WorkoutSessionResponse();
+        response.setTrainingSessionId(session.getTrainingSessionId());
+        response.setStartedAt(session.getStartedAt());
+        response.setCompletedAt(session.getCompletedAt());
+        response.setNote(session.getNote());
+
+        List<WorkoutExerciseResponse> exerciseResponses = session.getExercises().stream()
+                .map(pe -> {
+                    WorkoutExerciseResponse exResponse = new WorkoutExerciseResponse();
+                    exResponse.setPerformedExerciseId(pe.getPerformedExerciseId());
+                    exResponse.setExerciseId(pe.getExercise().getExerciseId());
+                    exResponse.setExerciseName(pe.getExercise().getName());
+                    exResponse.setTargetMuscleGroup(pe.getExercise().getTargetMuscleGroup());
+                    exResponse.setEquipment(pe.getExercise().getEquipment());
+                    exResponse.setExerciseType(pe.getExercise().getExerciseType());
+                    exResponse.setOrderNumber(pe.getOrderNumber());
+                    exResponse.setSets(pe.getSets().stream()
+                            .map(s -> mapToWorkoutSetResponse(s, false))
+                            .toList());
+                    // lastPerformed er ikke nødvendigt til stats - undlades bevidst
+                    return exResponse;
+                })
+                .toList();
+
+        response.setExercises(exerciseResponses);
+        return response;
     }
 
     @Override
