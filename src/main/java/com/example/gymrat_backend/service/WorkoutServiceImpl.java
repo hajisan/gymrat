@@ -12,6 +12,7 @@ import com.example.gymrat_backend.exception.ValidationException;
 import com.example.gymrat_backend.model.*;
 import com.example.gymrat_backend.repository.*;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -219,27 +220,19 @@ public class WorkoutServiceImpl implements WorkoutService {
     // Overloaded method that excludes current session
     @Transactional(readOnly = true)
     public WorkoutExerciseResponse.LastPerformedData getLastPerformedData(Long exerciseId, Long excludeSessionId) {
-        // Hent alle performed exercises for denne exercise (ekskl. current session)
-        List<PerformedExercise> pastPerformances = performedExerciseRepository.findByExerciseExerciseId(exerciseId)
-                .stream()
-                .filter(pe -> excludeSessionId == null || !pe.getSession().getTrainingSessionId().equals(excludeSessionId))
-                .toList();
-
-        if (pastPerformances.isEmpty()) {
-            return null; // Ingen tidligere data
-        }
-
-        // Hent seneste performance (based on session ID, since multiple sessions can happen same day)
-        PerformedExercise lastPerformance = pastPerformances.stream()
-                .max((pe1, pe2) -> pe1.getSession().getTrainingSessionId().compareTo(pe2.getSession().getTrainingSessionId()))
-                .orElse(null);
-
-        if (lastPerformance == null || lastPerformance.getSets().isEmpty()) {
+        if (excludeSessionId == null) {
             return null;
         }
 
-        // Beregn gennemsnit af sets fra sidste performance
-        List<PerformedSet> lastSets = lastPerformance.getSets();
+        // Én query: henter kun seneste performance med sets — ingen in-memory filtrering
+        List<PerformedExercise> results = performedExerciseRepository.findLatestForExercise(
+                exerciseId, excludeSessionId, PageRequest.of(0, 1));
+
+        if (results.isEmpty() || results.get(0).getSets().isEmpty()) {
+            return null;
+        }
+
+        List<PerformedSet> lastSets = results.get(0).getSets();
 
         double avgWeight = lastSets.stream()
                 .filter(s -> s.getWeight() != null)
