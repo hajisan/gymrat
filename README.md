@@ -1,5 +1,13 @@
 # GymRat Backend
 
+![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.7-6DB33F?logo=springboot)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
+![CI](https://github.com/hajisan/gymrat/actions/workflows/java.yaml/badge.svg)
+![Release](https://img.shields.io/github/v/release/hajisan/gymrat)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+
 A personal workout tracking REST API built with Spring Boot. Track training sessions, log exercises, and record sets with weight, reps, and duration data.
 
 ## Tech Stack
@@ -73,7 +81,8 @@ All endpoints are prefixed with `/api` and require authentication.
 | `DELETE` | `/api/workout/{sessionId}/sets/{performedSetId}` | Delete a set |
 | `POST` | `/api/workout/{sessionId}/complete` | Complete the workout |
 | `DELETE` | `/api/workout/{sessionId}` | Delete a workout session |
-| `GET` | `/api/workout/history` | Get all training sessions |
+| `GET` | `/api/workout/history` | Get all training sessions (summary) |
+| `GET` | `/api/workout/history/detailed` | Get all sessions with full exercises and sets data |
 | `GET` | `/api/workout/history/paged` | Get sessions with pagination (`page`, `size`) |
 | `GET` | `/api/workout/exercises/{exerciseId}/last-performed` | Get last performance data for an exercise |
 
