@@ -8,8 +8,7 @@ services:
   app:
     image: ghcr.io/hajisan/gymrat:latest
     container_name: gymrat-app
-    ports:
-      - "127.0.0.1:8080:8080"
+    network_mode: host
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - PROD_DB_URL=${DB_URL}
@@ -36,7 +35,7 @@ services:
       - SPRING_PROFILES_ACTIVE=demo
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/demo"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8081/demo"]
       interval: 30s
       timeout: 3s
       start_period: 90s
