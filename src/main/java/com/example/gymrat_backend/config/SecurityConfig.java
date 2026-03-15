@@ -29,9 +29,12 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(auth -> auth
                 // Tillad login-side og statiske ressourcer uden auth
-                .requestMatchers("/login", "/css/**", "/js/**", "/icons/**", "/favicon.ico", "/manifest.json").permitAll()
+                .requestMatchers("/login", "/demo", "/css/**", "/js/**", "/icons/**", "/favicon.ico", "/manifest.json").permitAll()
                 // Alt andet kræver authentication
                 .anyRequest().authenticated()
+            )
+            .headers(headers -> headers
+                .frameOptions(frameOptions -> frameOptions.disable())
             )
             .formLogin(form -> form
                 .loginPage("/login")
