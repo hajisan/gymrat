@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -29,6 +30,7 @@ public class LoginController {
         return "login";
     }
 
+    @Profile("demo")
     @GetMapping("/demo")
     public String demoLogin(HttpServletRequest request, HttpServletResponse response) {
         try {
