@@ -38,7 +38,7 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .headers(headers -> headers
-                .frameOptions(frameOptions -> frameOptions.sameOrigin())
+                .frameOptions(frameOptions -> frameOptions.disable())
                 .addHeaderWriter((request, response) ->
                     response.setHeader("Content-Security-Policy",
                         "frame-ancestors 'self' https://www.nimasalami.dk https://nimasalami.dk"))
