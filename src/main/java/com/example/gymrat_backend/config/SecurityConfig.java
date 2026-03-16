@@ -32,6 +32,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            .securityContext(sc -> sc.securityContextRepository(securityContextRepository()))
             .authorizeHttpRequests(auth -> auth
                 // Tillad login-side og statiske ressourcer uden auth
                 .requestMatchers("/login", "/demo", "/css/**", "/js/**", "/icons/**", "/favicon.ico", "/manifest.json").permitAll()
