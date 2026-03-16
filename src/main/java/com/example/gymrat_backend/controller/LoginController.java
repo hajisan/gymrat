@@ -2,6 +2,8 @@ package com.example.gymrat_backend.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
@@ -16,16 +18,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class LoginController {
 
+    private static final Logger log = LoggerFactory.getLogger(LoginController.class);
+
     private final UserDetailsService userDetailsService;
-    private final HttpSessionSecurityContextRepository securityContextRepository;
 
     @Value("${app.auth.username}")
     private String authUsername;
 
-    public LoginController(UserDetailsService userDetailsService,
-                           HttpSessionSecurityContextRepository securityContextRepository) {
+    public LoginController(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
-        this.securityContextRepository = securityContextRepository;
     }
 
     @GetMapping("/login")
@@ -37,14 +38,18 @@ public class LoginController {
     @GetMapping("/demo")
     public String demoLogin(HttpServletRequest request, HttpServletResponse response) {
         try {
+            log.info("Demo login attempt for user: {}", authUsername);
             UserDetails demoUser = userDetailsService.loadUserByUsername(authUsername);
             UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken(demoUser, null, demoUser.getAuthorities());
+                    UsernamePasswordAuthenticationToken.authenticated(demoUser, null, demoUser.getAuthorities());
             SecurityContext context = SecurityContextHolder.createEmptyContext();
             context.setAuthentication(auth);
             SecurityContextHolder.setContext(context);
-            securityContextRepository.saveContext(context, request, response);
+            request.getSession(true).setAttribute(
+                    HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
+            log.info("Demo login successful, redirecting to /");
         } catch (Exception e) {
+            log.error("Demo login failed: {}", e.getMessage(), e);
             return "redirect:/login";
         }
         return "redirect:/";
