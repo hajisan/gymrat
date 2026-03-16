@@ -17,12 +17,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class LoginController {
 
     private final UserDetailsService userDetailsService;
+    private final HttpSessionSecurityContextRepository securityContextRepository;
 
     @Value("${app.auth.username}")
     private String authUsername;
 
-    public LoginController(UserDetailsService userDetailsService) {
+    public LoginController(UserDetailsService userDetailsService,
+                           HttpSessionSecurityContextRepository securityContextRepository) {
         this.userDetailsService = userDetailsService;
+        this.securityContextRepository = securityContextRepository;
     }
 
     @GetMapping("/login")
@@ -40,7 +43,7 @@ public class LoginController {
             SecurityContext context = SecurityContextHolder.createEmptyContext();
             context.setAuthentication(auth);
             SecurityContextHolder.setContext(context);
-            new HttpSessionSecurityContextRepository().saveContext(context, request, response);
+            securityContextRepository.saveContext(context, request, response);
         } catch (Exception e) {
             return "redirect:/login";
         }
