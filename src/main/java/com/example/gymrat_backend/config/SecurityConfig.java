@@ -12,6 +12,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
@@ -24,14 +26,24 @@ public class SecurityConfig {
     @Value("${app.auth.password}")
     private String password;
 
+    @Value("${app.remember-me.key}")
+    private String rememberMeKey;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            .securityContext(sc -> sc.securityContextRepository(securityContextRepository()))
             .authorizeHttpRequests(auth -> auth
                 // Tillad login-side og statiske ressourcer uden auth
-                .requestMatchers("/login", "/css/**", "/js/**", "/icons/**", "/favicon.ico", "/manifest.json").permitAll()
+                .requestMatchers("/login", "/demo", "/css/**", "/js/**", "/icons/**", "/favicon.ico", "/manifest.json").permitAll()
                 // Alt andet kræver authentication
                 .anyRequest().authenticated()
+            )
+            .headers(headers -> headers
+                .frameOptions(frameOptions -> frameOptions.disable())
+                .addHeaderWriter((request, response) ->
+                    response.setHeader("Content-Security-Policy",
+                        "frame-ancestors 'self' https://www.nimasalami.dk https://nimasalami.dk"))
             )
             .formLogin(form -> form
                 .loginPage("/login")
@@ -47,7 +59,7 @@ public class SecurityConfig {
                 .permitAll()
             )
             .rememberMe(remember -> remember
-                .key("gymrat-remember-me-key-very-secret")
+                .key(rememberMeKey)
                 .tokenValiditySeconds(90 * 24 * 60 * 60) // 90 dage
                 .rememberMeParameter("remember-me")
                 .rememberMeCookieName("remember-me")
@@ -74,5 +86,10 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public HttpSessionSecurityContextRepository securityContextRepository() {
+        return new HttpSessionSecurityContextRepository();
     }
 }

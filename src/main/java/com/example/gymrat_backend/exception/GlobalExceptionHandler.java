@@ -117,7 +117,7 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Internal Server Error",
-                "En uventet fejl opstod: " + ex.getMessage(),
+                "En uventet fejl opstod.",
                 request.getRequestURI()
         );
         
